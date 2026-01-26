@@ -1,2 +1,4 @@
 # l3gh-site
-I'll do this later
+im having fun learning html!
+
+im new to all of this guys

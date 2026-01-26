@@ -9,17 +9,48 @@
       margin: 0;
       height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
+      gap: 2rem;
     }
     h1 {
-      color: #000000; /* black */
+      color: #000000;
       font-size: 5rem;
       font-family: sans-serif;
+    }
+    input {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <h1>dc: l3gh</h1>
+
+  <!-- Message form -->
+  <form id="msgForm">
+    <input type="text" name="message" placeholder="Leave me a message">
+    <button type="submit">Send</button>
+  </form>
+
+  <script>
+    const form = document.getElementById("msgForm");
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      const message = form.message.value;
+      await fetch("/api/discord", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+      form.reset();
+    });
+  </script>
 </body>
 </html>

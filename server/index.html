@@ -10,7 +10,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&display=swap" rel="stylesheet" />
     </head>
 <body>
-<!-- get OUT of the devtools you LARP. -->
+ <!-- get OUT of the devtools you LARP. -->
     <div class="nav-wrap" id="wrap1">
         <div class="hover-bg" id="hoverBg1">
         </div>
@@ -24,29 +24,40 @@
             <button class="tab" data-idx="2">Community</button>
         </div>
     </div>
-
-
-
+    <!-- testing 
+    <button onclick="fetchData()">Reload</button>
+    -->
     <div class="page-content" id="content1">
     <div class="page visible" data-page="0"> <!-- note to self, this is page 1-->
-        <h2>Info</h2>
+        <h2 class="page-header">Info</h2>
         
         <p class="look-at-me">Ip: <b><span class="gradient-text-main">l3gh.com</span></b></p>
         <p class="look-at-me">Version: <b><span class="gradient-text-main">1.20.1</span></b></p>
 
-        
+
 
         <div class="server-api">
-            <div id="serverinfo" class="server-return"><!--do NOT. touch me, check <script>.. --></div>
+            <div id="serverinfo" class="server-return">
+                <!--do NOT. touch me, check <script>.. -->
+                <p id="online-toggle-off" class="gradient-text-second">Fetching..</p>    
+            </div>
         </div>
+        <div id="online-toggle-on" class="toggle-on">
+            <p class="list-head">Currently online:</p>
+            <div class="player-box">
+                <div id="player-list" class="player-list"></div>
+            </div>
+        </div>
+        
         <details class="details-toggle">
             <summary>Stats for Nerds</summary>
             <div class="sfn-long">
                 <div id="nerds" class="nerds-return"><!-- also DONT touch this--></div>
             </div>
         </details>
-        <p>This is the api.mcsrvstat.us json response, coding this was surprisingly fun! enjoy</p>
+        <p class="page1-outro">This is the api.mcsrvstat.us json response, coding this was surprisingly fun! Some players and their face don't show up here, that's on them and they can toggle it in their xbox settings! enjoy</p>
     </div>
+
 <!-- ----------------------end of page1----------------- note to self -->
 
 
@@ -141,13 +152,13 @@
         activeLineEl: document.getElementById('activeLine1'),
         contentEl:   document.getElementById('content1'),
     });
-
-    fetch("https://api.mcsrvstat.us/3/l3gh.com")
+/* function fetchData() {  named function for testing */
+    fetch("https://api.mcsrvstat.us/3/l3gh.com?_=" + Date.now())
     .then(res => res.json())
     .then(data => {
         const container = document.getElementById("serverinfo");
         container.innerHTML = "";
-
+        /* online boolean */
         const status = document.createElement("div");
         status.className = "server-status";
         status.innerHTML =
@@ -156,62 +167,81 @@
         "</span>";
         container.appendChild(status);
 
+        /* things that do/dont show IF the server is online (or fetching)*/
+        if (data.online) {
+            document.getElementById("online-toggle-on").style.display = data.online ? "block" : "none";
+        }   // show things when online
 
+        if (!data.online) {
+            document.getElementById("online-toggle-off").style.display = data.online ? "none" : "block";
+        }   // show things when offline
+
+
+
+
+
+
+        /* n/max players*/
         if (data.players) {
         const players = document.createElement("div");
         players.className = "server-count";
         players.textContent = `Players: ${data.players.online} / ${data.players.max}`;
         container.appendChild(players);
         }
-
+        /* player list */
         if (data.online && data.players?.list?.length) {
-        const playerList = document.createElement("div");
-        playerList.id = "player-list";
 
-        data.players.list.forEach(player => {
-            const card = document.createElement("div");
-            card.className = "player-card";
+            const playerList = document.getElementById("player-list");
+            playerList.innerHTML = ""; 
 
-            const img = document.createElement("img");
-            img.src = `https://mc-heads.net/face/${player.uuid}/32`;
-            img.alt = player.name;
+            data.players.list.forEach(player => {
+                const card = document.createElement("div");
+                card.className = "player-card";
+                /*head*/
+                const img = document.createElement("img");
+                img.src = `https://mc-heads.net/face/${player.uuid}/80`;
+                img.alt = player.name;
+                /*name*/
+                const name = document.createElement("span");
+                name.textContent = player.name;
 
-            const name = document.createElement("span");
-            name.textContent = player.name;
-
-            card.appendChild(img);
-            card.appendChild(name);
-            playerList.appendChild(card);
-        });
+                card.appendChild(img);
+                card.appendChild(name);
+                playerList.appendChild(card);
+            });
         }
+            /* nerdy div */
+            const nerds = document.getElementById("nerds");
+            /* ip */
+            if (data.ip) {
+            const  NoAICode = document.createElement("div")
+            NoAICode.className = "nerds-ip"
+            NoAICode.textContent = "Full Ip: " + data.ip;
+            nerds.appendChild(NoAICode);
+            }
 
-        const nerds = document.getElementById("nerds");
+            /* port */
+            if (data.port) {
+            const mommy = document.createElement("div");
+            mommy.className = "server-version";
+            mommy.textContent = "Port: " + data.port;
+            nerds.appendChild(mommy);
+            }
 
-        if (data.ip) {
-        const  NoAICode = document.createElement("div")
-        NoAICode.className = "nerds-ip"
-        NoAICode.textContent = "Full Ip: " + data.ip;
-        nerds.appendChild(NoAICode);
-        }
-
-        if (data.port) {
-        const mommy = document.createElement("div");
-        mommy.className = "server-version";
-        mommy.textContent = "Port: " + data.port;
-        nerds.appendChild(mommy);
-        }
-
-        if (data.version) {
-        const IHateJS = document.createElement("div");
-        IHateJS.className = "server-version";
-        IHateJS.textContent = "Version: " + data.version;
-        nerds.appendChild(IHateJS);
+            /* version */
+            if (data.version) {
+            const IHateJS = document.createElement("div");
+            IHateJS.className = "server-version";
+            IHateJS.textContent = "Version: " + data.version;
+            nerds.appendChild(IHateJS);
         }
         
     })
+
     .catch(err => {
         document.getElementById("serverinfo").textContent = "Error: " + err;
     });
+    /*} <--- comment this out post testing, note to self */
   </script>
 </body>
 </html>

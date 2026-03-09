@@ -20,6 +20,8 @@
         position: relative;
         user-select: none;
         margin-top: 10vh;
+        margin-left: 1vh;
+        margin-right: 1vh;
 /*      display: flex;
         align-items: center;
         flex-direction: column; 
@@ -139,11 +141,16 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
+  /*      ^^^^  general css   ^^^^     */
 
+    .page-header {
+        margin-left: 3vh;
+    }
 
     .look-at-me {
         color: #aaa;
         font-size: small;
+        padding-left: 2vh;
     }
 
     .server-api {
@@ -187,7 +194,38 @@
         0 0 40px #ff0000;
     }
 
+    .player-box {
+        border-radius: 8px;
+        border-style: none;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 2vh;
+    }
 
+    #player-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;                
+        font-size: x-large;
+        color: #fff;
+    }
+    .player-card {
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+        gap: 8px;
+        padding: 0.5vh;
+        margin: 0.5vh;
+    }
+
+    .list-head {
+        font-size: x-large;
+        color: #fff;
+        margin: 2vh;
+        margin-top: 4vh;
+    } /* this is the HEADING, not the HEADS*/
 
     summary {
         color: rgb(121, 121, 121);
@@ -196,6 +234,8 @@
     .details-toggle {
         margin-top: 3vh;
         margin-bottom: 3vh;
+        margin-left: 1.5vh;
+        margin-right: 1.5vh;
     }
 
     .sfn-long {
@@ -221,3 +261,25 @@
         background: linear-gradient(90deg, transparent, #1a1a1a 20%, #1a1a1a 80%, transparent);
     }
       this is unused css  */
+
+      /*-- things that default to off --*/
+
+    .toggle-on {
+        display: none;
+    }
+
+    .toggle-off {
+        color: #fff;
+    }
+
+    .gradient-text-second {
+        background: linear-gradient(90deg, rgb(243, 17, 17), rgb(14, 213, 17));
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .page1-outro {
+        margin-bottom: 15vh;
+        margin-left: 2vh;
+    }

@@ -8,6 +8,9 @@
         <link rel="stylesheet" href="../styles/home-general.css">
         <link rel="stylesheet" href="../styles/home-popup.css">
         <link rel="icon" type="image/x-icon" href="../assets/images/home-favicon.jpg">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     </head>
     <body>
         <header>
@@ -25,10 +28,15 @@
         </div>
         <!-- banner and its fade -->
         
-        <div id="popup">
+        <div id="popup"> 
             <button id="close-button" onclick="closePopup()">🗙</button> </button>
-            <p id="popup-text">This is my <b>personal site</b>! If youre looking for the server site, it's <a id="server-fwd" href="../server/index.html"><b>here</b></a>.</p>
+            <h1 class="popup-header">Notice</h1>
+            <p id="popup-text">This is my <b>personal site</b>! If youre looking for the server site, it's </p>
+            <div class="popup-bottom">
+                <p class=""><a id="server-fwd" href="../server/index.html">To Server</a></p>
+            </div>
         </div>
+        <!-- this is the popup -->
 
         <main>
             <section id="home" class="home">
@@ -94,7 +102,7 @@
             window.onload = openPopup;
 
             function openPopup() {
-            document.getElementById('popup').style.display = 'block';
+            document.getElementById('popup').style.display = 'flex';
             }
 
             function closePopup() {

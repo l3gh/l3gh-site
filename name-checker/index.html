@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Leah's Name Checker</title>
+  <link rel="icon" href="../assets/images/home-favicon.jpg">
+  <link rel="stylesheet" href="./styles/name-style.css"/>
+  <meta property="og:image" content="https://l3gh.com/assets/images/home-favicon.jpg"/>
+  <meta name="description" content="Simple Minecraft Name Checker by @l3gh <3!">
+  <meta name="theme-color" content="#ffffff">
+</head>
+<body>
+<div class="wrap">
+
+  <div id="restore-bar" class="restore-bar" style="display:none"></div>
+
+  <div class="header">
+    <div class="header-title">MC NAME CHECKER</div>
+    <div class="header-sub">bulk check minecraft usernames against the mojang api</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="setMode('wordlist')">word list</button>
+    <button class="tab" onclick="setMode('custom')">custom names</button>
+  </div>
+
+  <div class="panel" id="panel-wordlist">
+    <div class="panel-text">Fetches a dictionary of English words and filters to your chosen length. Swap length anytime — no re-fetch needed after the first load.</div>
+
+    <div class="length-row">
+      <span class="length-label">length:</span>
+      <div class="presets">
+        <button class="preset" onclick="setLength(3)">3</button>
+        <button class="preset active" onclick="setLength(4)">4</button>
+        <button class="preset" onclick="setLength(5)">5</button>
+        <button class="preset" onclick="setLength(6)">6</button>
+        <button class="preset" onclick="setLength(7)">7</button>
+      </div>
+      <input class="length-input" type="number" id="length-input" min="3" max="16" value="4" onchange="onLengthInput(this.value)" oninput="onLengthInput(this.value)"/>
+      <span style="font-size:12px;color:#484f58">3–16</span>
+    </div>
+
+    <div class="length-row" style="margin-top:10px">
+      <span class="length-label">cap:</span>
+      <input class="length-input" type="number" id="cap-input" min="100" max="50000" value="2500" style="width:80px" oninput="updateCapEta()"/>
+      <span class="cap-eta" id="cap-eta">~2m est.</span>
+    </div>
+
+    <div class="toggle-row">
+      <label class="toggle">
+        <input type="checkbox" id="shuffle-toggle" checked/>
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-label" onclick="document.getElementById('shuffle-toggle').click()">randomise order</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <button class="btn" id="load-btn" onclick="loadWordList()">load word list</button>
+      <div class="list-status" id="list-status"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-custom" style="display:none">
+    <div class="panel-text">Paste names separated by newlines, commas, or spaces:</div>
+    <textarea id="custom-input" rows="4" placeholder="pixel&#10;blaze&#10;coral&#10;frost"></textarea>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-go" id="start-btn" onclick="startCheck()" disabled>start checking</button>
+    <button class="btn btn-stop" id="stop-btn" onclick="stopCheck()" style="display:none">stop</button>
+    <button class="btn" id="clear-btn" onclick="clearAll()" style="display:none">clear</button>
+    <span class="status-text" id="status-text"></span>
+  </div>
+
+  <div id="progress-section" style="display:none">
+    <div class="progress-label">
+      <span>progress</span>
+      <span class="progress-fraction" id="progress-fraction">0 / 0</span>
+      <span id="timer-display"></span>
+    </div>
+    <div class="speed-row">
+      <div class="api-indicators">
+        <span class="api-dot" id="api-0" title="Ashcon">A</span>
+        <span class="api-dot" id="api-1" title="PlayerDB">P</span>
+        <span class="api-dot" id="api-2" title="Minetools">M</span>
+      </div>
+      <span id="names-per-sec" class="speed-stat"></span>
+      <span id="eta-display" class="speed-stat"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="stats">
+      <div class="stat"><div class="stat-num" style="color:#3fb950" id="stat-free">0</div><div class="stat-label">available</div></div>
+      <div class="stat"><div class="stat-num" style="color:#f85149" id="stat-taken">0</div><div class="stat-label">taken</div></div>
+      <div class="stat"><div class="stat-num" style="color:#8b949e" id="stat-remaining">0</div><div class="stat-label">remaining</div></div>
+    </div>
+  </div>
+
+  <div id="results-section" class="results-box" style="display:none">
+    <div class="results-header">
+      <span class="results-title" id="results-title">available (0)</span>
+      <button class="btn" style="font-size:11px;padding:5px 10px" onclick="copyAll()">copy all</button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="hint" id="footer-hint">free names appear in green &middot; click any to copy &middot; ashcon + playerdb + minetools</div>
+
+</div>
+<script>
+// ── Worker source (IIFE stringified into a Blob) ──────────────────────────────
+function makeWorker() {
+  var URLS = [
+    function(n) { return 'https://api.ashcon.app/mojang/v2/user/' + n; },
+    function(n) { return 'https://playerdb.co/api/player/minecraft/' + n; },
+    function(n) { return 'https://api.minetools.eu/uuid/' + n; }
+  ];
+
+  async function checkName(name, apiIndex) {
+    try {
+      var res = await fetch(URLS[apiIndex](name));
+      if (apiIndex === 2) {
+      if (!res.ok) return 'error';
+      const j = await res.json();
+      if (j.id) return 'taken';
+      if (j.error) return 'free';
+      return 'unknown';
+      }
+      if (res.status === 200) return 'taken';
+      if (res.status === 404) return 'free';
+      if (res.status === 429) return 'ratelimited';
+      return 'unknown';
+    } catch(e) { return 'error'; }
+  }
+
+  var stopped = false;
+
+  self.onmessage = async function(e) {
+    var d = e.data;
+    if (d.type === 'stop') { stopped = true; return; }
+    if (d.type !== 'start') return;
+
+    var names = d.names;
+    var apiIndex = d.apiIndex;
+    var batchSize = 10;
+    var i = 0;
+
+    while (i < names.length && !stopped) {
+      var batch = names.slice(i, i + batchSize);
+      var results = await Promise.all(batch.map(function(n) { return checkName(n, apiIndex); }));
+      if (stopped) break;
+
+      var gotRL = false;
+      var processed = [];
+      batch.forEach(function(name, idx) {
+        if (results[idx] === 'ratelimited') {
+          gotRL = true;
+        } else {
+          processed.push({ name: name, status: results[idx] });
+        }
+      });
+
+      self.postMessage({ type: 'batch', results: processed, rateLimited: gotRL, apiIndex: apiIndex });
+
+      if (gotRL) {
+        batchSize = Math.max(3, Math.floor(batchSize / 2));
+        self.postMessage({ type: 'cooling', apiIndex: apiIndex });
+        await new Promise(function(r) { setTimeout(r, 3000); });
+        self.postMessage({ type: 'recovered', apiIndex: apiIndex });
+      } else {
+        batchSize = Math.min(15, batchSize + 1);
+      }
+
+      i += batch.length;
+    }
+
+    self.postMessage({ type: 'done', apiIndex: apiIndex });
+  };
+}
+
+const WORKER_SRC = '(' + makeWorker.toString() + ')()';
+const WORKER_BLOB = new Blob([WORKER_SRC], { type: 'application/javascript' });
+const WORKER_URL  = URL.createObjectURL(WORKER_BLOB);
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const WORD_SOURCE   = 'https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt';
+const WORDLE_SOURCE = 'https://raw.githubusercontent.com/tabatkins/wordle-list/main/words';
+const LS_KEY        = 'mc-checker-results';
+
+const API_URLS = [
+  n => 'https://api.ashcon.app/mojang/v2/user/' + n,
+  n => 'https://playerdb.co/api/player/minecraft/' + n,
+  n => 'https://api.minetools.eu/uuid/' + n
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let mode = 'wordlist', rawBank = null, rawBank5 = null;
+let currentList = [], selectedLength = 4;
+let running = false, stopFlag = false;
+let freeNames = [], takenCount = 0, totalCount = 0, doneCount = 0;
+let timerInterval = null, startTime = null;
+let workers = [], workersDone = 0;
+let erroredNames = [];
+let verifyQueue = [], verifying = false;
+let completionLog = [];
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// ── Cap / ETA ─────────────────────────────────────────────────────────────────
+function getUserCap() {
+  return Math.max(100, parseInt(document.getElementById('cap-input').value) || 2500);
+}
+
+function updateCapEta() {
+  const cap = getUserCap();
+  const secs = Math.round(cap / 30); // ~30 names/sec with 3 apis
+  const m = Math.floor(secs / 60), s = secs % 60;
+  document.getElementById('cap-eta').textContent = '~' + (m > 0 ? m + 'm ' + s + 's' : s + 's') + ' est.';
+}
+
+// ── Speed tracking ────────────────────────────────────────────────────────────
+function recordCompletion() {
+  completionLog.push(Date.now());
+  const cutoff = Date.now() - 10000;
+  while (completionLog.length && completionLog[0] < cutoff) completionLog.shift();
+}
+
+function getNamesPerSec() {
+  if (!startTime || completionLog.length < 2) return 0;
+  const window = Math.min(Date.now() - startTime, 10000);
+  if (window < 1000) return 0;
+  const recent = completionLog.filter(t => t > Date.now() - window);
+  return recent.length / (window / 1000);
+}
+
+function updateSpeed() {
+  const nps = getNamesPerSec();
+  if (nps > 0) {
+    document.getElementById('names-per-sec').textContent = nps.toFixed(1) + '/s';
+    const remaining = totalCount - doneCount;
+    const etaSecs = Math.round(remaining / nps);
+    const m = Math.floor(etaSecs / 60), s = etaSecs % 60;
+    document.getElementById('eta-display').textContent = 'ETA ' + (m > 0 ? m + 'm ' + s + 's' : s + 's');
+  }
+}
+
+// ── Format time ───────────────────────────────────────────────────────────────
+function formatTime(ms) {
+  const s = Math.floor(ms / 1000), m = Math.floor(s / 60);
+  return m > 0 ? m + 'm ' + (s % 60) + 's' : s + 's';
+}
+
+// ── API dot states ────────────────────────────────────────────────────────────
+function setApiDot(i, state) {
+  const el = document.getElementById('api-' + i);
+  if (!el) return;
+  el.className = 'api-dot ' + state;
+}
+
+// ── Mode toggle ───────────────────────────────────────────────────────────────
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', (i === 0) === (m === 'wordlist')));
+  document.getElementById('panel-wordlist').style.display = m === 'wordlist' ? '' : 'none';
+  document.getElementById('panel-custom').style.display   = m === 'custom'   ? '' : 'none';
+  if (m === 'custom') document.getElementById('start-btn').disabled = false;
+}
+
+// ── Length presets ────────────────────────────────────────────────────────────
+function setLength(n) {
+  selectedLength = n;
+  document.getElementById('length-input').value = n;
+  document.querySelectorAll('.preset').forEach(p => p.classList.toggle('active', parseInt(p.textContent) === n));
+  onLengthChanged();
+}
+
+function onLengthInput(val) {
+  const n = Math.min(16, Math.max(3, parseInt(val) || 3));
+  selectedLength = n;
+  document.querySelectorAll('.preset').forEach(p => p.classList.toggle('active', parseInt(p.textContent) === n));
+  onLengthChanged();
+}
+
+function onLengthChanged() {
+  if (selectedLength === 5 && rawBank5)      buildList(rawBank5, true);
+  else if (selectedLength !== 5 && rawBank)  buildList(rawBank, false);
+  else {
+    document.getElementById('list-status').innerHTML = '';
+    document.getElementById('start-btn').disabled = true;
+  }
+}
+
+// ── Load word bank ────────────────────────────────────────────────────────────
+async function loadWordList() {
+  const btn = document.getElementById('load-btn');
+  const status = document.getElementById('list-status');
+  btn.textContent = 'loading...'; btn.disabled = true; status.innerHTML = '';
+  try {
+    if (selectedLength === 5 && !rawBank5) {
+      const res = await fetch(WORDLE_SOURCE);
+      if (!res.ok) throw new Error();
+      rawBank5 = (await res.text()).trim().split('\n').map(w => w.trim().toLowerCase()).filter(w => /^[a-z]+$/.test(w));
+    }
+    if (selectedLength !== 5 && !rawBank) {
+      const res = await fetch(WORD_SOURCE);
+      if (!res.ok) throw new Error();
+      rawBank = (await res.text()).trim().split('\n').map(w => w.trim().toLowerCase()).filter(w => /^[a-z]+$/.test(w));
+    }
+  } catch {
+    status.innerHTML = '<span class="status-err">fetch failed — check connection</span>';
+    btn.textContent = 'retry'; btn.disabled = false; return;
+  }
+  buildList(selectedLength === 5 ? rawBank5 : rawBank, selectedLength === 5);
+  btn.textContent = 'reload'; btn.disabled = false;
+}
+
+// ── Build filtered list ───────────────────────────────────────────────────────
+function buildList(bank, isCurated) {
+  const status = document.getElementById('list-status');
+  let filtered = bank.filter(w => w.length === selectedLength);
+
+  let mixedAppended = false;
+  if (selectedLength === 3) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    const mixed = [];
+    for (let a = 0; a < chars.length; a++)
+      for (let b = 0; b < chars.length; b++)
+        for (let c = 0; c < chars.length; c++) {
+          const s = chars[a] + chars[b] + chars[c];
+          if (/[a-z]/.test(s) && /[0-9]/.test(s)) mixed.push(s);
+        }
+    filtered = [...new Set([...filtered, ...mixed])];
+    mixedAppended = true;
+  }
+
+  const total = filtered.length;
+  if (total === 0) {
+    status.innerHTML = '<span class="status-err">no words found for length ' + selectedLength + '</span>';
+    document.getElementById('start-btn').disabled = true;
+    currentList = []; return;
+  }
+
+  if (document.getElementById('shuffle-toggle').checked) shuffle(filtered);
+
+  const cap = getUserCap();
+  const capped = filtered.length > cap;
+  currentList = capped ? filtered.slice(0, cap) : filtered;
+
+  let msg = '<span class="status-ok">ready: ' + currentList.length + ' names';
+  if (capped) msg += ' <span class="status-warn">(capped from ' + total + ')</span>';
+  if (mixedAppended) msg += ' <span style="color:#8b949e">incl. mixed alphanum</span>';
+  msg += '</span>';
+  status.innerHTML = msg;
+  document.getElementById('start-btn').disabled = false;
+}
+
+// ── Shuffle ───────────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── Main-thread name check (for verify + retry) ───────────────────────────────
+async function checkNameMain(name, apiIndex) {
+  try {
+    const res = await fetch(API_URLS[apiIndex](name));
+    if (apiIndex === 2) {
+      if (!res.ok) return 'error';
+      const j = await res.json();
+      return j.status === 'OK' ? 'taken' : j.status === 'ERR' ? 'free' : 'unknown';
+    }
+    if (res.status === 200) return 'taken';
+    if (res.status === 404) return 'free';
+    if (res.status === 429) return 'ratelimited';
+    return 'unknown';
+  } catch { return 'error'; }
+}
+
+// ── Cross-verify queue ────────────────────────────────────────────────────────
+function queueVerify(name, sourceApiIndex) {
+  // show immediately — don't gate on verification
+  freeNames.push(name);
+  addChip(name);
+  document.getElementById('results-section').style.display = '';
+  updateStats();
+  saveResults();
+  // verify in background
+  verifyQueue.push({ name, sourceApiIndex });
+  if (!verifying) processVerifyQueue();
+}
+
+async function processVerifyQueue() {
+  verifying = true;
+  while (verifyQueue.length > 0) {
+    if (stopFlag) break;
+    const { name, sourceApiIndex } = verifyQueue.shift();
+    const verifyIndex = (sourceApiIndex + 1) % 3;
+    const result = await checkNameMain(name, verifyIndex);
+    const chip = document.getElementById('chip-' + name);
+    if (result === 'taken') {
+      // second API disagrees — mark as unconfirmed
+      if (chip) {
+        chip.style.borderColor = '#e3b341';
+        chip.style.color = '#e3b341';
+        chip.title = 'unconfirmed — APIs disagree';
+      }
+    } else if (result === 'free') {
+      // confirmed free
+      if (chip) chip.classList.add('verified');
+    }
+    // error/unknown = leave chip as-is, benefit of the doubt
+  }
+  verifying = false;
+}
+
+function addChip(name) {
+  const c = document.createElement('span');
+  c.className = 'chip';
+  c.id = 'chip-' + name;
+  c.innerHTML = name + ' <span class="chip-icon">&#x2398;</span>';
+  c.onclick = () => {
+    navigator.clipboard.writeText(name);
+    c.classList.add('copied');
+    setTimeout(() => c.classList.remove('copied'), 1500);
+  };
+  document.getElementById('chips').appendChild(c);
+}
+
+// ── Retry errored names ───────────────────────────────────────────────────────
+async function retryErrors() {
+  if (erroredNames.length === 0) return;
+  document.getElementById('status-text').textContent = 'retrying ' + erroredNames.length + ' errors...';
+  for (const name of erroredNames) {
+    if (stopFlag) break;
+    const result = await checkNameMain(name, 0);
+    if (result === 'free')   queueVerify(name, 0);
+    else if (result === 'taken') { takenCount++; updateStats(); }
+  }
+  erroredNames = [];
+}
+
+// ── Worker message handler ────────────────────────────────────────────────────
+function handleWorkerMessage(e) {
+  const d = e.data;
+  if (d.type === 'batch') {
+    d.results.forEach(({ name, status }) => {
+      doneCount++;
+      recordCompletion();
+      if (status === 'free') {
+        queueVerify(name, d.apiIndex);
+      } else if (status === 'taken') {
+        takenCount++;
+      } else if (status === 'error' || status === 'unknown') {
+        erroredNames.push(name);
+      }
+    });
+    updateStats();
+    updateSpeed();
+  } else if (d.type === 'cooling') {
+    setApiDot(d.apiIndex, 'cooling');
+  } else if (d.type === 'recovered') {
+    setApiDot(d.apiIndex, 'active');
+  } else if (d.type === 'done') {
+    setApiDot(d.apiIndex, 'idle');
+    workersDone++;
+    if (workersDone === 3) finishScan();
+  }
+}
+
+// ── Finish scan ───────────────────────────────────────────────────────────────
+async function finishScan() {
+  await retryErrors();
+  // wait for verify queue to drain
+  while (verifyQueue.length > 0 || verifying) await sleep(100);
+
+  running = false;
+  clearInterval(timerInterval);
+  document.getElementById('timer-display').textContent = 'done in ' + formatTime(Date.now() - startTime);
+  document.getElementById('eta-display').textContent   = '';
+  document.getElementById('start-btn').style.display   = '';
+  document.getElementById('stop-btn').style.display    = 'none';
+  document.getElementById('clear-btn').style.display   = '';
+  document.getElementById('status-text').textContent   = '';
+  saveResults();
+}
+
+// ── Start scan ────────────────────────────────────────────────────────────────
+async function startCheck() {
+  let names;
+  if (mode === 'wordlist') {
+    names = [...currentList];
+  } else {
+    const raw = document.getElementById('custom-input').value;
+    names = raw.split(/[\n,\s]+/).map(n => n.trim().toLowerCase()).filter(n => n.length >= 3 && n.length <= 16);
+    if (!names.length) return;
+    if (document.getElementById('shuffle-toggle').checked) shuffle(names);
+  }
+
+  // pre-filter invalid mc chars
+  names = names.filter(n => /^[a-zA-Z0-9_]{3,16}$/.test(n));
+  if (!names.length) return;
+
+  stopFlag = false; running = true;
+  freeNames = []; takenCount = 0; totalCount = names.length; doneCount = 0;
+  erroredNames = []; verifyQueue = []; verifying = false;
+  completionLog = []; workersDone = 0;
+
+  document.getElementById('start-btn').style.display    = 'none';
+  document.getElementById('stop-btn').style.display     = '';
+  document.getElementById('clear-btn').style.display    = 'none';
+  document.getElementById('progress-section').style.display = '';
+  document.getElementById('results-section').style.display  = 'none';
+  document.getElementById('footer-hint').style.display      = 'none';
+  document.getElementById('chips').innerHTML             = '';
+  document.getElementById('names-per-sec').textContent  = '';
+  document.getElementById('eta-display').textContent    = '';
+  [0,1,2].forEach(i => setApiDot(i, 'active'));
+  updateStats();
+
+  startTime = Date.now();
+  document.getElementById('timer-display').textContent = '0s';
+  timerInterval = setInterval(() => {
+    document.getElementById('timer-display').textContent = formatTime(Date.now() - startTime);
+    updateSpeed();
+  }, 1000);
+
+  // kill any old workers
+  workers.forEach(w => w.terminate());
+
+  // split into thirds across 3 workers
+  const third = Math.ceil(names.length / 3);
+  const lists = [
+    names.slice(0, third),
+    names.slice(third, third * 2),
+    names.slice(third * 2)
+  ];
+
+  workers = lists.map((list, i) => {
+    const w = new Worker(WORKER_URL);
+    w.onmessage = handleWorkerMessage;
+    w.postMessage({ type: 'start', names: list, apiIndex: i });
+    return w;
+  });
+}
+
+// ── Stop ──────────────────────────────────────────────────────────────────────
+function stopCheck() {
+  stopFlag = true; running = false;
+  workers.forEach(w => { w.postMessage({ type: 'stop' }); w.terminate(); });
+  clearInterval(timerInterval);
+  document.getElementById('timer-display').textContent = 'stopped at ' + formatTime(Date.now() - startTime);
+  document.getElementById('stop-btn').style.display  = 'none';
+  document.getElementById('start-btn').style.display = '';
+  document.getElementById('clear-btn').style.display = '';
+  document.getElementById('status-text').textContent = '';
+  [0,1,2].forEach(i => setApiDot(i, 'idle'));
+}
+
+// ── Clear ─────────────────────────────────────────────────────────────────────
+function clearAll() {
+  freeNames = []; takenCount = 0; totalCount = 0; doneCount = 0;
+  clearInterval(timerInterval);
+  document.getElementById('chips').innerHTML             = '';
+  document.getElementById('progress-section').style.display = 'none';
+  document.getElementById('results-section').style.display  = 'none';
+  document.getElementById('footer-hint').style.display      = '';
+  document.getElementById('clear-btn').style.display        = 'none';
+  document.getElementById('timer-display').textContent      = '';
+  document.getElementById('names-per-sec').textContent      = '';
+  document.getElementById('eta-display').textContent        = '';
+  localStorage.removeItem(LS_KEY);
+}
+
+// ── Update stats ──────────────────────────────────────────────────────────────
+function updateStats() {
+  const pct = totalCount > 0 ? (doneCount / totalCount * 100) : 0;
+  document.getElementById('progress-fill').style.width     = pct + '%';
+  document.getElementById('progress-fraction').textContent = doneCount + ' / ' + totalCount;
+  document.getElementById('stat-free').textContent         = freeNames.length;
+  document.getElementById('stat-taken').textContent        = takenCount;
+  document.getElementById('stat-remaining').textContent    = totalCount - doneCount;
+  document.getElementById('results-title').textContent     = 'available (' + freeNames.length + ')';
+  document.getElementById('status-text').textContent       = running ? 'checking...' : '';
+}
+
+// ── Add chip ──────────────────────────────────────────────────────────────────
+function addChip(name) {
+  const c = document.createElement('span');
+  c.className = 'chip';
+  c.innerHTML = name + ' <span class="chip-icon">&#x2398;</span>';
+  c.onclick = () => {
+    navigator.clipboard.writeText(name);
+    c.classList.add('copied');
+    setTimeout(() => c.classList.remove('copied'), 1500);
+  };
+  document.getElementById('chips').appendChild(c);
+}
+
+function copyAll() { navigator.clipboard.writeText(freeNames.join('\n')); }
+
+// ── localStorage ─────────────────────────────────────────────────────────────
+function saveResults() {
+  if (!freeNames.length) return;
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      freeNames, takenCount, doneCount, totalCount, selectedLength,
+      timestamp: Date.now()
+    }));
+  } catch {}
+}
+
+function loadSavedResults() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(LS_KEY));
+    if (!saved || !saved.freeNames.length) return;
+    const ageH = (Date.now() - saved.timestamp) / 3600000;
+    const ageStr = ageH < 1 ? 'just now' : Math.round(ageH) + 'h ago';
+    const bar = document.getElementById('restore-bar');
+    bar.innerHTML =
+      'Last scan: <strong>' + saved.freeNames.length + ' free names</strong> found for ' +
+      saved.selectedLength + '-char names (' + ageStr + ') &nbsp;' +
+      '<button class="btn" style="padding:3px 10px;font-size:11px" onclick="restoreResults()">restore</button> ' +
+      '<button class="btn" style="padding:3px 10px;font-size:11px" onclick="dismissRestore()">dismiss</button>';
+    bar.style.display = '';
+  } catch {}
+}
+
+function restoreResults() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(LS_KEY));
+    if (!saved) return;
+    freeNames = saved.freeNames;
+    takenCount = saved.takenCount;
+    doneCount  = saved.doneCount;
+    totalCount = saved.totalCount;
+    document.getElementById('chips').innerHTML = '';
+    freeNames.forEach(addChip);
+    document.getElementById('results-section').style.display  = '';
+    document.getElementById('progress-section').style.display = '';
+    document.getElementById('footer-hint').style.display      = 'none';
+    document.getElementById('clear-btn').style.display        = '';
+    updateStats();
+    dismissRestore();
+  } catch {}
+}
+
+function dismissRestore() {
+  document.getElementById('restore-bar').style.display = 'none';
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+updateCapEta();
+loadSavedResults();
+</script>
+</body>
+</html>

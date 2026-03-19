@@ -1,7 +1,6 @@
 *, *::before, *::after {
     box-sizing: border-box; margin: 0; padding: 0;
     }
-
     body {
         background: #0a0a0a;
         font-family: 'Geist', system-ui, sans-serif;
@@ -12,7 +11,6 @@
         gap: 60px;
         color: #fff;
     }
-
     .nav-wrap {
         width: 100%;
         max-width: 520px;
@@ -22,19 +20,12 @@
         margin-top: 10vh;
         margin-left: 1vh;
         margin-right: 1vh;
-/*      display: flex;
-        align-items: center;
-        flex-direction: column; 
-        
-        ^^^ this code breaks the looks */
     }
-
     .tabs {
         display: flex;
         align-items: center;
         position: relative;
     }
-
     .hover-bg {
         position: absolute;
         top: 50%;
@@ -50,7 +41,6 @@
         opacity: 0;
         z-index: 0;
     }
-
     .active-line {
         position: absolute;
         bottom: -1px;
@@ -62,7 +52,6 @@
         pointer-events: none;
         z-index: 2;
     }
-
     .tab {
         position: relative;
         z-index: 1;
@@ -81,15 +70,12 @@
         transition: color 0.15s ease;
         white-space: nowrap;
     }
-
     .tab:hover {
         color: #aaa;
     }
-
     .tab.active {
         color: #fff;
     }
-
     .tab .dot {
         width: 6px;
         height: 6px;
@@ -100,12 +86,10 @@
         transition: opacity 0.2s ease, transform 0.2s ease;
         flex-shrink: 0;
     }
-
     .tab.active .dot {
         opacity: 1;
         transform: scale(1);
     }
-
     .page-content {
         width: 100%;
         max-width: 520px;
@@ -113,28 +97,23 @@
         color: #444;
         line-height: 1.7;
     }
-
     .page-content .page {
         display: none;
         animation: fadeUp 0.25s ease forwards;
     }
-
     .page-content .page.visible {
         display: block;
     }
-
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
     .page-content h2 {
         font-size: 1rem;
         font-weight: 500;
         color: #ccc;
         margin-bottom: 6px;
     }
-
     .gradient-text-main {
         background: linear-gradient(90deg, rgb(170, 170, 170), rgb(95, 95, 95));
         background-clip: text;
@@ -142,17 +121,14 @@
         -webkit-text-fill-color: transparent;
     }
   /*      ^^^^  general css   ^^^^     */
-
     .page-header {
         margin-left: 3vh;
     }
-
     .look-at-me {
         color: #aaa;
         font-size: small;
         padding-left: 2vh;
     }
-
     .server-api {
         background-color: rgb(50, 50, 50);
         border-radius: 8px;
@@ -162,19 +138,11 @@
         display: grid;
         margin-top: 5vh;
     }
-    
     .server-return {
         color: #fff;
         padding: 4vh;
         font-size: xx-large;
     }
-
-    /*
-    .server-status {
-        background-color: pink;
-    }
-      maybe ill change each element to be its own div later*/
-
     .server-status .online {
     color: green;
     text-shadow:
@@ -193,7 +161,6 @@
         0 0 30px #ff0000,
         0 0 40px #ff0000;
     }
-
     .player-box {
         border-radius: 8px;
         border-style: none;
@@ -219,25 +186,21 @@
         padding: 0.5vh;
         margin: 0.5vh;
     }
-
     .list-head {
         font-size: x-large;
         color: #fff;
         margin: 2vh;
         margin-top: 4vh;
     } /* this is the HEADING, not the HEADS*/
-
     summary {
         color: rgb(121, 121, 121);
     }
-
     .details-toggle {
         margin-top: 3vh;
         margin-bottom: 3vh;
         margin-left: 1.5vh;
         margin-right: 1.5vh;
     }
-
     .sfn-long {
         background-color: rgb(50, 50, 50);
         border-radius: 8px;
@@ -247,23 +210,17 @@
         display: grid;
         color: #fff;
     }
-
     .nerds-return {
         color: #fff;
         padding: 4vh;
         font-size: xx-large;
     }
-
-    /*.sep {
-        width: 100%;
-        max-width: 520px;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, #1a1a1a 20%, #1a1a1a 80%, transparent);
+    #players-api-return {
+        background-color: cornflowerblue;
+    }  
+    .api-player-card {
+        background-color: pink;
     }
-      this is unused css  */
-
-      /*-- things that default to off --*/
-
     .toggle-on {
         display: none;
     }
@@ -271,14 +228,12 @@
     .toggle-off {
         color: #fff;
     }
-
     .gradient-text-second {
         background: linear-gradient(90deg, rgb(243, 17, 17), rgb(14, 213, 17));
         background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
-
     .page1-outro {
         margin-bottom: 15vh;
         margin-left: 2vh;

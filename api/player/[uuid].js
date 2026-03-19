@@ -5,6 +5,7 @@ const redis = new Redis({
 })
 
 export default async function handler(req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.method === "GET") {
         const { uuid } = req.query;
         const player = await redis.get(`player:${uuid}`);

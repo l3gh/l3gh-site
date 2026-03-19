@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const { message } = req.body;
-    await fetch("https://discord.com/api/webhooks/1465307577968623658/6q2TIrUXMnwKosoB5DN_zAD6tQgGYeaF4MhIY1urHFb_TijegCavwVIT9iRzndL_yAkQ", {
+    await fetch(process.env.DISCORD_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ content: message })

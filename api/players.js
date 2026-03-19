@@ -6,8 +6,15 @@ const redis = new Redis({
 
 export default async function handler(req, res) {
     if (req.method === "GET") {
-        const players = await redis.get('players');
-        res.status(200).json(players);
+        const [players, usercache] = await Promise.all([
+            redis.get('players'),
+            redis.get('usercache')
+        ]);
+            const result = players.map(uuid => {
+            const entry = usercache.find(u => u.uuid === uuid);
+            return { uuid, name: entry ? entry.name : uuid };
+        });
+        res.status(200).json(result);
     } else {
         res.status(405).json({ status: "method not allowed" });
     }

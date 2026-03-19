@@ -1,9 +1,6 @@
 {
   "name": "l3gh-site",
   "version": "1.0.0",
-  "scripts": {
-    "build": "echo 'no build needed'"
-  },
   "dependencies": {
     "@upstash/redis": "^1.34.0"
   }

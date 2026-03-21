@@ -183,3 +183,13 @@ h2, h3 {
 .stat-section details[open] summary {
     margin-bottom: 8px;
 }
+
+.stat-section details summary::after {
+    content: '▸';
+    float: right;
+    color: #444;
+}
+
+.stat-section details[open] summary::after {
+    content: '▾';
+}

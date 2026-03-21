@@ -14,6 +14,10 @@ body {
     padding: 10vh 2vh 15vh;
 }
 
+.list-header {
+    font-size: 1.7rem;
+}
+
 h1 {
     font-size: 1.2rem;
     font-weight: 500;
@@ -106,7 +110,7 @@ h2, h3 {
 }
 
 #player-name {
-    font-size: 1.4rem;
+    font-size: 1.7rem;
     font-weight: 500;
     color: #fff;
 }
@@ -158,4 +162,24 @@ h2, h3 {
 
 .stat-section table tr:hover td {
     color: #aaa;
+}
+
+.stat-section details summary {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #1f1f1f;
+    list-style: none;
+}
+
+.stat-section details summary:hover {
+    color: #aaa;
+}
+
+.stat-section details[open] summary {
+    margin-bottom: 8px;
 }

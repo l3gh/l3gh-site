@@ -41,17 +41,12 @@ function loadProfile(uuid) {
     fetch(`https://l3gh.com/api/player/${uuid}`)
         .then(res => res.json())
         .then(data => {
-            // head
             const headEl = document.getElementById("player-head");
             const img = document.createElement("img");
-            img.src = `https://mc-heads.net/avatar/${uuid}/100`;
+            img.src = `https://mc-heads.net/face/${uuid}/100`;
             img.alt = data.name;
             headEl.appendChild(img);
-
-            // name
             document.getElementById("player-name").textContent = data.name;
-
-            // stats coming soon
             renderStats(data);
         });
 }
@@ -64,19 +59,38 @@ function ticksToTime(ticks) {
     return `${days}d ${hours % 24}h ${minutes % 60}m`;
 }
 
-function makeSection(title, rows) {
+function makeSection(title, rows, collapsible = false) {
     const section = document.createElement("div");
     section.className = "stat-section";
-    const h3 = document.createElement("h3");
-    h3.textContent = title;
-    section.appendChild(h3);
-    const table = document.createElement("table");
-    rows.forEach(([label, value]) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td><b>${label}</b></td><td>${value}</td>`;
-        table.appendChild(tr);
-    });
-    section.appendChild(table);
+
+    if (collapsible) {
+        const details = document.createElement("details");
+        const summary = document.createElement("summary");
+        summary.textContent = title;
+        details.appendChild(summary);
+
+        const table = document.createElement("table");
+        rows.forEach(([label, value]) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td><b>${label}</b></td><td>${value}</td>`;
+            table.appendChild(tr);
+        });
+        details.appendChild(table);
+        section.appendChild(details);
+    } else {
+        const h3 = document.createElement("h3");
+        h3.textContent = title;
+        section.appendChild(h3);
+
+        const table = document.createElement("table");
+        rows.forEach(([label, value]) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td><b>${label}</b></td><td>${value}</td>`;
+            table.appendChild(tr);
+        });
+        section.appendChild(table);
+    }
+
     return section;
 }
 
@@ -110,15 +124,22 @@ function renderStats(data) {
     ]));
 
     container.appendChild(makeSection("Blocks Mined",
-        Object.entries(mined).map(([k, v]) => [k.replace("minecraft:", "").replace(/_/g, " "), v])
+        Object.entries(mined)
+        .sort((a, b) => b[1] - a[1])
+        .map(([k, v]) => [k.replace("minecraft:", "").replace(/_/g, " "), v]),
+        true
     ));
-
     container.appendChild(makeSection("Items Picked Up",
-        Object.entries(pickedUp).map(([k, v]) => [k.replace("minecraft:", "").replace(/_/g, " "), v])
+        Object.entries(pickedUp)
+        .sort((a, b) => b[1] - a[1])
+        .map(([k, v]) => [k.replace("minecraft:", "").replace(/_/g, " "), v]),
+        true
     ));
-
     container.appendChild(makeSection("Items Dropped",
-        Object.entries(dropped).map(([k, v]) => [k.replace("minecraft:", "").replace(/_/g, " "), v])
+        Object.entries(dropped)
+        .sort((a, b) => b[1] - a[1])
+        .map(([k, v]) => [k.replace("minecraft:", "").replace(/_/g, " "), v]),
+        true
     ));
 }
 

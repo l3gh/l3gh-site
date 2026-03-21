@@ -109,7 +109,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     .page-content h2 {
-        font-size: 1rem;
+        font-size: 2.67rem;
         font-weight: 500;
         color: #ccc;
         margin-bottom: 6px;
@@ -237,4 +237,21 @@
     .page1-outro {
         margin-bottom: 15vh;
         margin-left: 2vh;
+    }
+
+    .players-p {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #acacac;
+        margin-top: 6px;
+        text-decoration: none;
+        margin-left: 1.5vh;
+    }
+
+    .players-a {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #acacac;
+        margin-top: 6px;
+        text-decoration: underline;
     }

@@ -12,6 +12,8 @@ if (uuid) {
 }
 
 function loadPlayerList() {
+    const container = document.getElementById("player-list");
+    container.innerHTML = '<p class="fetching-txt">Fetching...</p>';
     fetch("https://l3gh.com/api/players")
         .then(res => res.json())
         .then(players => {
@@ -38,6 +40,7 @@ function loadPlayerList() {
 }
 
 function loadProfile(uuid) {
+    document.getElementById("player-stats").innerHTML = '<p class="fetching-txt">Fetching...</p>';
     fetch(`https://l3gh.com/api/player/${uuid}`)
         .then(res => res.json())
         .then(data => {

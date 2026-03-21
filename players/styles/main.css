@@ -193,3 +193,11 @@ h2, h3 {
 .stat-section details[open] summary::after {
     content: '▾';
 }
+
+.fetching-txt {
+    background: linear-gradient(90deg, rgb(31, 7, 141), rgb(142, 32, 157));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.5rem;
+}

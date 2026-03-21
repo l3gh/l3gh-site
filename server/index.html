@@ -63,10 +63,10 @@
 
     <div class="page" data-page="1">    <!-- note to self, this is page 2-->
         <h2>Players</h2>
-        <div id="players-api-return">
-            return
+        <p class="players-p">this whole section moved, 
+            <a class="players-a"href="https://www.l3gh.com/players">check out the players and all their stats here!</a>
+        </p>
         </div>
-    </div>
 <!-- ----------------------end of page2----------------- note to self -->
 
 
@@ -240,33 +240,6 @@
     });
 
     //page 2 beneath me
-
-    fetch("https://l3gh.com/api/players")
-    .then(res => res.json())
-    .then(players => {
-        const container = document.getElementById("players-api-return");
-        container.innerHTML = "";
-        players.forEach(player => {
-            const card = document.createElement("div");
-            card.className = "api-player-card";
-
-            card.style.cursor = "pointer";
-            card.onclick = () => {
-                window.location.href = `/players?uuid=${player.uuid}`;
-            };
-
-            const img = document.createElement("img");
-            img.src = `https://mc-heads.net/face/${player.uuid}/80`;
-            img.alt = player.name;
-            
-            const name = document.createElement("span");
-            name.textContent = player.name;
-            
-            card.appendChild(img);
-            card.appendChild(name);
-            container.appendChild(card);
-        });
-    });
   </script>
 </body>
 </html>

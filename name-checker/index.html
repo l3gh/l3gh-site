@@ -9,6 +9,7 @@
   <meta property="og:image" content="https://l3gh.com/assets/images/home-favicon.jpg"/>
   <meta name="description" content="Simple Minecraft Name Checker by @l3gh <3!">
   <meta name="theme-color" content="#ffffff">
+  <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -546,7 +547,7 @@ async function startCheck() {
   });
 }
 
-// ── Stop ──────────────────────────────────────────────────────────────────────
+// ── Stop ───────────────────��──────────────────────────────────────────────────
 function stopCheck() {
   stopFlag = true; running = false;
   workers.forEach(w => { w.postMessage({ type: 'stop' }); w.terminate(); });

@@ -34,8 +34,6 @@
         <p class="look-at-me">Ip: <b><span class="gradient-text-main">l3gh.com</span></b></p>
         <p class="look-at-me">Version: <b><span class="gradient-text-main">1.20.1</span></b></p>
 
-
-
         <div class="server-api">
             <div id="serverinfo" class="server-return">
                 <!--do NOT. touch me, check <script>.. -->
@@ -48,7 +46,7 @@
                 <div id="player-list" class="player-list"></div>
             </div>
         </div>
-        
+
         <details class="details-toggle">
             <summary>Stats for Nerds</summary>
             <div class="sfn-long">
@@ -79,7 +77,6 @@
     function initMotionTabs({ tabsEl, hoverBgEl, activeLineEl, contentEl, lightMode }) {
         const tabs = Array.from(tabsEl.querySelectorAll('.tab'));
         let activeIdx = 0;
-
 
         function getTabRect(tab) {
             const containerRect = tabsEl.getBoundingClientRect();
@@ -179,7 +176,6 @@
             document.getElementById("online-toggle-off").style.display = data.online ? "none" : "block";
         }   // show things when offline
 
-
         /* n/max players*/
         if (data.players) {
         const players = document.createElement("div");
@@ -238,7 +234,6 @@
     .catch(err => {
         document.getElementById("serverinfo").textContent = "Error: " + err;
     });
-
     //page 2 beneath me
   </script>
 </body>

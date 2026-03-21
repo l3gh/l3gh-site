@@ -44,6 +44,7 @@ function loadProfile(uuid) {
     fetch(`https://l3gh.com/api/player/${uuid}`)
         .then(res => res.json())
         .then(data => {
+            document.getElementById("player-stats").innerHTML = "";
             const headEl = document.getElementById("player-head");
             const img = document.createElement("img");
             img.src = `https://mc-heads.net/face/${uuid}/100`;

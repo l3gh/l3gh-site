@@ -223,3 +223,25 @@ h2, h3 {
     box-shadow: 0 0 6px #00ff2f, 0 0 12px #00ff2f;
     display: inline-block;
 }
+
+#player-search {
+    width: 100%;
+    background: #111;
+    border: 1px solid #1f1f1f;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    color: #aaa;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color 0.15s ease;
+}
+
+#player-search:focus {
+    border-color: #333;
+}
+
+#player-search::placeholder {
+    color: #333;
+}

@@ -56,7 +56,10 @@ function loadPlayerList() {
                     }
                 });
             });
-        });
+        }).catch(err => {
+    document.getElementById("player-list").innerHTML = 
+        '<p style="color:#444;font-size:0.82rem;">Failed to load players. Try again later.</p>';
+});
       
 }
 
@@ -79,7 +82,10 @@ function loadProfile(uuid) {
             uuidEl.onclick = () => navigator.clipboard.writeText(uuid);
 
             renderStats(data);
-        });
+        }).catch(err => {
+    document.getElementById("player-stats").innerHTML = 
+        '<p style="color:#444;font-size:0.82rem;">Failed to load player data. Try again later.</p>';
+});
 }
 
 function ticksToTime(ticks) {
@@ -202,3 +208,11 @@ function renderStats(data) {
 function cmToKm(cm) {
     return (cm / 100000).toFixed(1) + " km";
 }
+
+document.getElementById("player-search").addEventListener("input", e => {
+    const query = e.target.value.toLowerCase();
+    document.querySelectorAll(".api-player-card").forEach(card => {
+        const name = card.querySelector("span").textContent.toLowerCase();
+        card.style.display = name.includes(query) ? "flex" : "none";
+    });
+});

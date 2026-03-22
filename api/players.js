@@ -15,8 +15,10 @@ export default async function handler(req, res) {
             players.map(async uuid => {
                 const entry = usercache.find(u => u.uuid === uuid);
                 const stats = await redis.get(`player:${uuid}`);
-                const playTime = stats?.stats?.["minecraft:custom"]?.["minecraft:play_time"] || 0;
-                return { uuid, name: entry ? entry.name : uuid, playTime };
+                const playTime = stats?.stats?.stats?.["minecraft:custom"]?.["minecraft:play_time"] || 0;
+                const lastSeen = stats?.lastSeen || null;
+                return { uuid, name: entry ? entry.name : uuid, playTime, lastSeen };
+                
             })
         );
 

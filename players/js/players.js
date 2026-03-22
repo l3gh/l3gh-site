@@ -141,7 +141,6 @@ function makeSection(title, rows, collapsible = false) {
 }
 
 function renderStats(data) {
-    const stats = data.stats || {};
     const statsObj = data.stats?.stats || {};
     const custom = statsObj["minecraft:custom"] || {};
     const mined = statsObj["minecraft:mined"] || {};

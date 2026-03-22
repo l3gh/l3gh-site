@@ -141,6 +141,7 @@ function makeSection(title, rows, collapsible = false) {
 }
 
 function renderStats(data) {
+    const stats = data.stats || {};
     const container = document.getElementById("player-stats");
     const custom = data.stats["minecraft:custom"] || {};
     const mined = data.stats["minecraft:mined"] || {};
@@ -148,6 +149,7 @@ function renderStats(data) {
     const dropped = data.stats["minecraft:dropped"] || {};
 
     container.appendChild(makeSection("Activity", [
+        ["Last Seen", data.lastSeen ? timeAgo(data.lastSeen) : "Unknown"],
         ["Play Time", ticksToTime(custom["minecraft:play_time"] || 0)],
         ["Deaths", custom["minecraft:deaths"] || 0],
         ["Mob Kills", custom["minecraft:mob_kills"] || 0],
@@ -216,3 +218,14 @@ document.getElementById("player-search").addEventListener("input", e => {
         card.style.display = name.includes(query) ? "flex" : "none";
     });
 });
+
+function timeAgo(ms) {
+    const diff = Date.now() - ms;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+    if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    return "Just now";
+}

@@ -68,6 +68,7 @@ function loadProfile(uuid) {
     fetch(`https://l3gh.com/api/player/${uuid}`)
         .then(res => res.json())
         .then(data => {
+            console.log(data);
             document.getElementById("player-stats").innerHTML = "";
             const headEl = document.getElementById("player-head");
             const img = document.createElement("img");
@@ -141,6 +142,7 @@ function makeSection(title, rows, collapsible = false) {
 }
 
 function renderStats(data) {
+    const container = document.getElementById("player-stats");
     const statsObj = data.stats?.stats || {};
     const custom = statsObj["minecraft:custom"] || {};
     const mined = statsObj["minecraft:mined"] || {};

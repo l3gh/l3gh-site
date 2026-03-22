@@ -142,11 +142,11 @@ function makeSection(title, rows, collapsible = false) {
 
 function renderStats(data) {
     const stats = data.stats || {};
-    const container = document.getElementById("player-stats");
-    const custom = data.stats["minecraft:custom"] || {};
-    const mined = data.stats["minecraft:mined"] || {};
-    const pickedUp = data.stats["minecraft:picked_up"] || {};
-    const dropped = data.stats["minecraft:dropped"] || {};
+    const statsObj = data.stats?.stats || {};
+    const custom = statsObj["minecraft:custom"] || {};
+    const mined = statsObj["minecraft:mined"] || {};
+    const pickedUp = statsObj["minecraft:picked_up"] || {};
+    const dropped = statsObj["minecraft:dropped"] || {};
 
     container.appendChild(makeSection("Activity", [
         ["Last Seen", data.lastSeen ? timeAgo(data.lastSeen) : "Unknown"],

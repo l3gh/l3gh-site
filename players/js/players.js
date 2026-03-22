@@ -22,6 +22,7 @@ function loadPlayerList() {
             players.forEach(player => {
                 const card = document.createElement("div");
                 card.className = "api-player-card";
+                card.dataset.uuid = player.uuid;
                 card.style.cursor = "pointer";
                 card.onclick = () => {
                     window.location.href = `/players?uuid=${player.uuid}`;
@@ -30,13 +31,33 @@ function loadPlayerList() {
                 img.src = `https://mc-heads.net/face/${player.uuid}/80`;
                 img.alt = player.name;
                 const name = document.createElement("span");
-                name.textContent = player.name;
+                name.textContent = player.name;  //name
+                const time = document.createElement("span");
+                time.textContent = ticksToTime(player.playTime);  //playtime
+                time.style.fontSize = "0.7rem";
+                time.style.color = "#444";
                 card.appendChild(img);
                 card.appendChild(name);
+                card.appendChild(time);
                 container.appendChild(card);
             });
+             fetch("https://api.mcsrvstat.us/3/l3gh.com")
+            .then(res => res.json())
+            .then(serverData => {
+                const onlineUuids = new Set(
+                    (serverData?.players?.list || []).map(p => p.uuid)
+                );
+                players.forEach(player => {
+                    if (onlineUuids.has(player.uuid)) {
+                        const dot = document.createElement("span");
+                        dot.className = "online-dot";
+                        dot.title = "Online";
+                        document.querySelector(`[data-uuid="${player.uuid}"]`)?.appendChild(dot);
+                    }
+                });
+            });
         });
-        
+      
 }
 
 function loadProfile(uuid) {
@@ -51,6 +72,12 @@ function loadProfile(uuid) {
             img.alt = data.name;
             headEl.appendChild(img);
             document.getElementById("player-name").textContent = data.name;
+
+            const uuidEl = document.getElementById("player-uuid");
+            uuidEl.textContent = uuid;
+            uuidEl.style.cursor = "pointer";
+            uuidEl.onclick = () => navigator.clipboard.writeText(uuid);
+
             renderStats(data);
         });
 }
@@ -66,6 +93,15 @@ function ticksToTime(ticks) {
 function makeSection(title, rows, collapsible = false) {
     const section = document.createElement("div");
     section.className = "stat-section";
+
+    if (rows.length === 0) {
+        const empty = document.createElement("p");
+        empty.textContent = "No data";
+        empty.style.color = "#333";
+        empty.style.fontSize = "0.78rem";
+        section.appendChild(empty);
+        return section;
+    }
 
     if (collapsible) {
         const details = document.createElement("details");
@@ -145,6 +181,22 @@ function renderStats(data) {
         .map(([k, v]) => [k.replace("minecraft:", "").replace(/_/g, " "), v]),
         true
     ));
+        const coveredKeys = new Set([
+        "minecraft:play_time", "minecraft:deaths", "minecraft:mob_kills",
+        "minecraft:jump", "minecraft:leave_game", "minecraft:damage_dealt",
+        "minecraft:damage_taken", "minecraft:walk_one_cm", "minecraft:sprint_one_cm",
+        "minecraft:fly_one_cm", "minecraft:fall_one_cm", "minecraft:swim_one_cm",
+        "minecraft:walk_on_water_one_cm"
+    ]);
+
+    const otherRows = Object.entries(custom)
+        .filter(([k]) => !coveredKeys.has(k))
+        .sort((a, b) => b[1] - a[1])
+        .map(([k, v]) => [k.replace("minecraft:", "").replace(/_/g, " "), v]);
+
+    if (otherRows.length > 0) {
+        container.appendChild(makeSection("Other", otherRows, true));
+    }
 }
 
 function cmToKm(cm) {

@@ -209,3 +209,17 @@ h2, h3 {
     padding-left: 100px;
     animation: fetchingPulse 1.5s ease-in-out infinite;
 }
+
+.card-playtime {
+    font-size: 0.7rem;
+    color: #444;
+}
+
+.online-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00ff2f;
+    box-shadow: 0 0 6px #00ff2f, 0 0 12px #00ff2f;
+    display: inline-block;
+}

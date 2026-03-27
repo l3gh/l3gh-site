@@ -1,0 +1,160 @@
+/* ── inventory panel ─────────────────────────────────────────────────────────── */
+
+#player-inventory {
+    margin-top: 1.5rem;
+}
+
+.inv-waiting {
+    color: #444;
+    font-size: 0.82rem;
+}
+
+/* tabs */
+.inv-tabs {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.inv-tab {
+    background: none;
+    border: 1px solid #222;
+    color: #444;
+    font-family: 'Geist', sans-serif;
+    font-size: 0.78rem;
+    padding: 0.3rem 0.75rem;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.inv-tab:hover {
+    color: #888;
+    border-color: #333;
+}
+
+.inv-tab.active {
+    color: #eee;
+    border-color: #444;
+}
+
+/* panels */
+.inv-panel.hidden { display: none; }
+
+/* main area: armor | grid | offhand */
+.inv-main-area {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+/* 9-wide grid (main inv, hotbar, ender chest) */
+.inv-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 36px);
+    gap: 2px;
+}
+
+/* armor column: 1 wide, 4 tall */
+.inv-armor-col {
+    display: grid;
+    grid-template-columns: 36px;
+    gap: 2px;
+}
+
+/* hotbar separated by slightly more space */
+.inv-hotbar-wrap {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #1e1e1e;
+}
+
+/* individual slot */
+.inv-slot {
+    width: 36px;
+    height: 36px;
+    background: #141414;
+    border: 1px solid #1f1f1f;
+    border-radius: 2px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    image-rendering: pixelated;
+}
+
+.inv-slot.filled {
+    border-color: #2a2a2a;
+}
+
+.inv-slot.filled:hover {
+    border-color: #3a3a3a;
+    background: #1a1a1a;
+}
+
+.inv-slot img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    pointer-events: none;
+}
+
+/* stack count badge */
+.inv-count {
+    position: absolute;
+    bottom: 1px;
+    right: 2px;
+    font-size: 10px;
+    font-family: 'Geist', sans-serif;
+    font-weight: 500;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+    pointer-events: none;
+    line-height: 1;
+}
+
+/* ── shulker popup ───────────────────────────────────────────────────────────── */
+.shulker-popup {
+    position: absolute;
+    z-index: 999;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 8px;
+    pointer-events: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+}
+
+.shulker-label {
+    font-size: 0.72rem;
+    color: #555;
+    margin: 0 0 6px 0;
+    font-family: 'Geist', sans-serif;
+}
+
+.shulker-grid {
+    grid-template-columns: repeat(9, 28px);
+    gap: 2px;
+}
+
+.shulker-grid .inv-slot {
+    width: 28px;
+    height: 28px;
+}
+
+.shulker-grid .inv-slot img {
+    width: 22px;
+    height: 22px;
+}
+
+.shulker-grid .inv-count {
+    font-size: 8px;
+}
+
+/* shulker slots get a subtle color tint on the slot indicator */
+.inv-slot.filled[title*="Shulker"] {
+    cursor: pointer;
+}

@@ -230,3 +230,267 @@ function timeAgo(ms) {
     if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
     return "Just now";
 }
+
+
+// ── config ────────────────────────────────────────────────────────────────────
+const INV_WS_URL   = 'ws://193.135.10.199:15060/ws';
+const INV_WS_TOKEN = 'ThisIsAnAwesomeSecretCuh123456'; // oh my buddah its on github!
+
+// ── state ─────────────────────────────────────────────────────────────────────
+let ws            = null;
+let wsReady       = false;
+let viewingUuid   = null;
+const playerCache = {}; // uuid → last received payload
+
+// ── boot ──────────────────────────────────────────────────────────────────────
+(function init() {
+    const params = new URLSearchParams(window.location.search);
+    const uuid   = params.get('uuid');
+    if (!uuid) return; // on list view, nothing to do
+    viewingUuid = uuid;
+    connectWS();
+})();
+
+// ── websocket ─────────────────────────────────────────────────────────────────
+function connectWS() {
+    ws = new WebSocket(INV_WS_URL);
+
+    ws.onopen = () => {
+        ws.send(JSON.stringify({ token: INV_WS_TOKEN }));
+    };
+
+    ws.onmessage = (e) => {
+        let msg;
+        try { msg = JSON.parse(e.data); } catch { return; }
+        if (msg.auth === 'ok') { wsReady = true; return; }
+        if (!msg.uuid) return;
+
+        playerCache[msg.uuid] = msg;
+
+        // only re-render if we're currently viewing this player
+        if (msg.uuid === viewingUuid) renderInventoryPanel(msg);
+    };
+
+    ws.onclose = () => {
+        wsReady = false;
+        setTimeout(connectWS, 4000); // reconnect
+    };
+
+    ws.onerror = () => ws.close();
+}
+
+// called from players.js loadProfile so the panel appears at the right time
+function invSetPlayer(uuid) {
+    viewingUuid = uuid;
+    const container = document.getElementById('player-inventory');
+    if (!container) return;
+
+    if (playerCache[uuid]) {
+        renderInventoryPanel(playerCache[uuid]);
+    } else {
+        container.innerHTML = '<p class="inv-waiting">Waiting for inventory data…</p>';
+    }
+}
+
+// ── rendering ─────────────────────────────────────────────────────────────────
+function renderInventoryPanel(data) {
+    const container = document.getElementById('player-inventory');
+    if (!container) return;
+    container.innerHTML = '';
+
+    // tabs
+    const tabs = document.createElement('div');
+    tabs.className = 'inv-tabs';
+    ['Inventory', 'Ender Chest'].forEach((label, i) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.className   = 'inv-tab' + (i === 0 ? ' active' : '');
+        btn.onclick     = () => switchTab(i, tabs, panels);
+        tabs.appendChild(btn);
+    });
+    container.appendChild(tabs);
+
+    const panels = [];
+
+    // ── panel 0: inventory ────────────────────────────────────────────────────
+    const invPanel = document.createElement('div');
+    invPanel.className = 'inv-panel';
+
+    // build slot lookup
+    const slots = {};
+    (data.inventory || []).forEach(entry => {
+        if (entry.item) slots[entry.slot] = entry.item;
+    });
+
+    // armor column + main grid side by side
+    const mainArea = document.createElement('div');
+    mainArea.className = 'inv-main-area';
+
+    // armor (head=39 → feet=36, top to bottom)
+    const armorCol = document.createElement('div');
+    armorCol.className = 'inv-armor-col';
+    [39, 38, 37, 36].forEach(s => armorCol.appendChild(makeSlot(slots[s], s)));
+    mainArea.appendChild(armorCol);
+
+    // main grid (rows: 9-17, 18-26, 27-35)
+    const mainGrid = document.createElement('div');
+    mainGrid.className = 'inv-grid';
+    for (let s = 9; s <= 35; s++) mainGrid.appendChild(makeSlot(slots[s], s));
+    mainArea.appendChild(mainGrid);
+
+    // offhand (slot 40)
+    const offhandCol = document.createElement('div');
+    offhandCol.className = 'inv-armor-col';
+    offhandCol.appendChild(makeSlot(slots[40], 40));
+    mainArea.appendChild(offhandCol);
+
+    invPanel.appendChild(mainArea);
+
+    // hotbar (slots 0-8) — separated visually
+    const hotbarWrap = document.createElement('div');
+    hotbarWrap.className = 'inv-hotbar-wrap';
+    const hotbar = document.createElement('div');
+    hotbar.className = 'inv-grid inv-hotbar';
+    for (let s = 0; s <= 8; s++) hotbar.appendChild(makeSlot(slots[s], s));
+    hotbarWrap.appendChild(hotbar);
+    invPanel.appendChild(hotbarWrap);
+
+    panels.push(invPanel);
+    container.appendChild(invPanel);
+
+    // ── panel 1: ender chest ──────────────────────────────────────────────────
+    const ecPanel = document.createElement('div');
+    ecPanel.className = 'inv-panel hidden';
+
+    const ecSlots = {};
+    (data.enderchest || []).forEach(entry => {
+        if (entry.item) ecSlots[entry.slot] = entry.item;
+    });
+
+    const ecGrid = document.createElement('div');
+    ecGrid.className = 'inv-grid';
+    for (let s = 0; s <= 26; s++) ecGrid.appendChild(makeSlot(ecSlots[s], s));
+    ecPanel.appendChild(ecGrid);
+
+    panels.push(ecPanel);
+    container.appendChild(ecPanel);
+}
+
+function switchTab(index, tabs, panels) {
+    tabs.querySelectorAll('.inv-tab').forEach((t, i) =>
+        t.classList.toggle('active', i === index));
+    panels.forEach((p, i) => p.classList.toggle('hidden', i !== index));
+}
+
+// ── slot element ──────────────────────────────────────────────────────────────
+function makeSlot(item, slotIndex) {
+    const slot = document.createElement('div');
+    slot.className = 'inv-slot';
+    if (!item) return slot;
+
+    slot.classList.add('filled');
+
+    const img = document.createElement('img');
+    img.src   = itemTexture(item.id);
+    img.alt   = item.id;
+    img.onerror = () => {
+        // try block texture
+        const name = item.id.replace('minecraft:', '');
+        img.onerror = () => { img.style.display = 'none'; };
+        img.src = `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/${name}.png`;
+    };
+    slot.appendChild(img);
+
+    if (item.count > 1) {
+        const count = document.createElement('span');
+        count.className = 'inv-count';
+        count.textContent = item.count;
+        slot.appendChild(count);
+    }
+
+    // tooltip with item name
+    const name = formatItemName(item.id);
+    slot.title = name;
+
+    // shulker box: hover (desktop) / tap (mobile) popup
+    if (item.id.includes('shulker_box')) {
+        attachShulkerPopup(slot, item);
+    }
+
+    return slot;
+}
+
+// ── shulker popup ─────────────────────────────────────────────────────────────
+function attachShulkerPopup(slot, item) {
+    const items = item.nbt?.BlockEntityTag?.Items || [];
+    if (items.length === 0) return;
+
+    // build 27-slot array from NBT
+    const contents = new Array(27).fill(null);
+    items.forEach(entry => {
+        const s = typeof entry.Slot === 'object' ? entry.Slot.value : entry.Slot;
+        if (s >= 0 && s < 27) {
+            contents[s] = { id: entry.id, count: entry.Count?.value ?? entry.Count ?? 1 };
+        }
+    });
+
+    let popup = null;
+
+    function showPopup() {
+        if (popup) return;
+        popup = document.createElement('div');
+        popup.className = 'shulker-popup';
+
+        const label = document.createElement('p');
+        label.className = 'shulker-label';
+        label.textContent = formatItemName(item.id);
+        popup.appendChild(label);
+
+        const grid = document.createElement('div');
+        grid.className = 'inv-grid shulker-grid';
+        contents.forEach((c, i) => grid.appendChild(makeSlot(c, i)));
+        popup.appendChild(grid);
+
+        document.body.appendChild(popup);
+        positionPopup(popup, slot);
+    }
+
+    function hidePopup() {
+        if (popup) { popup.remove(); popup = null; }
+    }
+
+    function positionPopup(pop, anchor) {
+        const rect  = anchor.getBoundingClientRect();
+        const pw    = pop.offsetWidth  || 200;
+        const ph    = pop.offsetHeight || 100;
+        let   left  = rect.left + window.scrollX;
+        let   top   = rect.bottom + window.scrollY + 6;
+
+        if (left + pw > window.innerWidth)  left = window.innerWidth  - pw - 8;
+        if (top  + ph > window.innerHeight + window.scrollY) top = rect.top + window.scrollY - ph - 6;
+
+        pop.style.left = left + 'px';
+        pop.style.top  = top  + 'px';
+    }
+
+    // desktop: hover
+    slot.addEventListener('mouseenter', showPopup);
+    slot.addEventListener('mouseleave', hidePopup);
+
+    // mobile: tap toggle
+    slot.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (popup) { hidePopup(); } else { showPopup(); }
+    }, { passive: false });
+}
+
+// ── helpers ───────────────────────────────────────────────────────────────────
+function itemTexture(id) {
+    const name = id.replace('minecraft:', '');
+    return `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/${name}.png`;
+}
+
+function formatItemName(id) {
+    return id.replace('minecraft:', '').replace(/_/g, ' ')
+             .replace(/\b\w/g, c => c.toUpperCase());
+}

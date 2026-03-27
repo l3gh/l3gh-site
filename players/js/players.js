@@ -233,7 +233,7 @@ function timeAgo(ms) {
 
 
 // ── config ────────────────────────────────────────────────────────────────────
-const INV_WS_URL   = 'ws://193.135.10.199:15060/ws';
+const INV_WS_URL   = 'wss://l3gh.com/api/inv-ws';
 const INV_WS_TOKEN = 'ThisIsAnAwesomeSecretCuh123456'; // oh my buddah its on github!
 
 // ── state ─────────────────────────────────────────────────────────────────────

@@ -5,5 +5,8 @@
       "destination": "/youtube/",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    { "source": "/api/inv-ws", "destination": "http://193.135.10.199:15060/ws" }
   ]
 }

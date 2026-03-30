@@ -108,12 +108,7 @@
       from { opacity: 0; transform: translateY(6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .page-content h2 {
-        font-size: 2.67rem;
-        font-weight: 500;
-        color: #ccc;
-        margin-bottom: 6px;
-    }
+    
     .gradient-text-main {
         background: linear-gradient(90deg, rgb(170, 170, 170), rgb(95, 95, 95));
         background-clip: text;
@@ -123,6 +118,10 @@
   /*      ^^^^  general css   ^^^^     */
     .page-header {
         margin-left: 3vh;
+        font-size: 2.67rem;
+        font-weight: 500;
+        color: #ccc;
+        margin-bottom: 48px;
     }
     .look-at-me {
         color: #aaa;
@@ -215,19 +214,12 @@
         padding: 4vh;
         font-size: xx-large;
     }
-    #players-api-return {
-        background-color: cornflowerblue;
-    }  
-    .api-player-card {
-        background-color: pink;
-    }
+
     .toggle-on {
         display: none;
     }
 
-    .toggle-off {
-        color: #fff;
-    }
+    
     .gradient-text-second {
         background: linear-gradient(90deg, rgb(243, 17, 17), rgb(14, 213, 17));
         background-clip: text;

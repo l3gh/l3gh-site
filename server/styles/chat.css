@@ -1,0 +1,280 @@
+*, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #050505;
+            --bg-elevated: #0a0a0a;
+            --bg-card: #111111;
+            --bg-hover: #1a1a1a;
+            --border: #1f1f1f;
+            --border-hover: #2a2a2a;
+            --text: #e5e5e5;
+            --text-muted: #666;
+            --text-dim: #444;
+            --accent: #fff;
+            --accent-dim: #888;
+        }
+
+        .styledchat-ref {
+            
+            font-family: 'Geist', system-ui, sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+            max-width: 680px;
+            margin: 0 auto;
+            
+        }
+
+        .styledchat-ref .header {
+            margin-bottom: 48px;
+        }
+
+        .styledchat-ref .header h1 { 
+            font-size: 2.67rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            color: #ccc;
+            background-clip: text;
+            margin-left: 3vh;
+        }
+
+        .styledchat-ref .section {
+            margin-bottom: 48px;
+        }
+
+        .styledchat-ref .section-title {
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            padding-left: 2px;
+        }
+
+        .styledchat-ref .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .styledchat-ref .card-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s ease;
+        }
+
+        .styledchat-ref .card-row:last-child {
+            border-bottom: none;
+        }
+
+        .styledchat-ref .card-row:hover {
+            background: var(--bg-hover);
+        }
+
+        .styledchat-ref .cell-label {
+            padding: 14px 16px;
+            border-right: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .styledchat-ref .cell-value {
+            padding: 14px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .styledchat-ref code {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .styledchat-ref code:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-hover);
+        }
+
+        .styledchat-ref .arrow {
+            color: var(--text-dim);
+            font-size: 0.7rem;
+            margin: 0 4px;
+            user-select: none;
+        }
+
+        .styledchat-ref .preview-bold { font-weight: 700; color: var(--text); }
+        .styledchat-ref .preview-italic { font-style: italic; color: #aaa; }
+        .styledchat-ref .preview-strike { text-decoration: line-through; color: var(--text-muted); }
+        .styledchat-ref .preview-underline { text-decoration: underline; text-decoration-color: var(--text-dim); }
+
+        .styledchat-ref .mention {
+            color: var(--accent);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .styledchat-ref .spoiler {
+            background: var(--bg-hover);
+            color: transparent;
+            text-shadow: 0 0 8px rgba(255,255,255,0.2);
+            border-radius: 4px;
+            padding: 2px 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .styledchat-ref .spoiler:hover {
+            color: var(--text);
+            text-shadow: none;
+            background: var(--border-hover);
+        }
+
+        .styledchat-ref .emo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 1px;
+            background: var(--border);
+        }
+
+        .styledchat-ref .emo-item {
+            background: var(--bg-card);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .styledchat-ref .emo-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .styledchat-ref .emo-char {
+            font-size: 1.1rem;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .styledchat-ref .emo-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent-dim);
+        }
+
+        .styledchat-ref .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1px;
+            background: var(--border);
+        }
+
+        .styledchat-ref .color-item {
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.15s ease, filter 0.15s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .styledchat-ref .color-item:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+            z-index: 1;
+        }
+
+        .styledchat-ref .color-item code {
+            background: transparent;
+            border: none;
+            padding: 0;
+            font-size: 0.7rem;
+            font-weight: 600;
+            pointer-events: none;
+            color: #1a1a1a;
+        }
+
+        .styledchat-ref .color-grid .lighter-text {
+            color: #ccc;
+        }
+
+        .styledchat-ref .info-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 2px solid var(--text);
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .styledchat-ref .info-box strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .styledchat-ref .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-card);
+            border: 1px solid var(--border-hover);
+            color: var(--text);
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 100;
+            pointer-events: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .styledchat-ref .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 600px) {
+            .styledchat-ref {
+                padding: 24px 16px;
+            }
+
+            .styledchat-ref .card-row {
+                grid-template-columns: 100px 1fr;
+            }
+
+            .styledchat-ref .cell-label {
+                padding: 12px;
+                font-size: 0.7rem;
+            }
+
+            .styledchat-ref .cell-value {
+                padding: 12px;
+                font-size: 0.75rem;
+            }
+        }

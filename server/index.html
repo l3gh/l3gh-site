@@ -3,9 +3,10 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>l3gh - Server</title>
+        <title>l3gh - Server</title>                     <!-- tab name -->
         <link rel="icon" href="../assets/images/home-favicon.jpg">
-        <link rel="stylesheet" href="./styles/temp.css">
+        <link rel="stylesheet" href="./styles/temp.css"> <!-- main css -->
+        <link rel="stylesheet" href="./styles/chat.css"> <!-- chat section css -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&display=swap" rel="stylesheet" />
         <meta property="og:image" content="https://l3gh.com/assets/images/home-favicon.jpg"/>
@@ -25,12 +26,12 @@
         <div class="tabs" id="tabs1">
             <button class="tab active" data-idx="0">Info</button>
             <button class="tab" data-idx="1">Players</button>
-            <button class="tab" data-idx="2">Builds</button>
+            <button class="tab" data-idx="2">Chat</button>
         </div>
     </div>
     <div class="page-content" id="content1">
     <div class="page visible" data-page="0"> <!-- note to self, this is page 1-->
-        <h2 class="page-header">Info</h2>
+        <p class="page-header">Information</p>
         
         <p class="look-at-me">Ip: <b><span class="gradient-text-main">l3gh.com</span></b></p>
         <p class="look-at-me">Version: <b><span class="gradient-text-main">1.20.1</span></b></p>
@@ -61,7 +62,7 @@
 
 
     <div class="page" data-page="1">    <!-- note to self, this is page 2-->
-        <h2>Players</h2>
+        <p class="page-header">Players</p>
         <p class="players-p">this whole section moved, 
             <a class="players-a"href="https://www.l3gh.com/players">check out the players and all their stats here!</a>
         </p>
@@ -70,9 +71,205 @@
 
 
     <div class="page" data-page="2">      <!-- note to self, this is page 3-->
-        <h2>Builds</h2>these are the other's builds!
+        
+        <div class="styledchat-ref">
+            <header class="header">
+                <h1 class="page-header">Chat Styles</h1>
+            </header>
+            <section class="section">
+                <div class="section-title">Text Formatting — Markdown</div>
+                <div class="card">
+                    <div class="card-row">
+                        <div class="cell-label">Bold</div>
+                        <div class="cell-value">
+                            <code onclick="copyStyledChat(this)">**text**</code>
+                            <span class="arrow">→</span>
+                            <span class="preview-bold">text</span>
+                        </div>
+                    </div>
+                    <div class="card-row">
+                        <div class="cell-label">Italic (default)</div>
+                        <div class="cell-value">
+                            <code onclick="copyStyledChat(this)">*text*</code>
+                            <span class="arrow">→</span>
+                            <span class="preview-italic">text</span>
+                        </div>
+                    </div>
+                    <div class="card-row">
+                        <div class="cell-label">Strikethrough</div>
+                        <div class="cell-value">
+                            <code onclick="copyStyledChat(this)">~~text~~</code>
+                            <span class="arrow">→</span>
+                            <span class="preview-strike">text</span>
+                        </div>
+                    </div>
+                    <div class="card-row">
+                        <div class="cell-label">Underline</div>
+                        <div class="cell-value">
+                            <code onclick="copyStyledChat(this)">__text__</code>
+                            <span class="arrow">→</span>
+                            <span class="preview-underline">text</span>
+                        </div>
+                    </div>
+                    <div class="card-row">
+                        <div class="cell-label">Bold Italic</div>
+                        <div class="cell-value">
+                            <code onclick="copyStyledChat(this)">***text***</code>
+                            <span class="arrow">→</span>
+                            <span class="preview-bold"><span class="preview-italic">text</span></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="section">
+                <div class="section-title">Mentions & Spoilers</div>
+                <div class="card">
+                    <div class="card-row">
+                        <div class="cell-label">Mention</div>
+                        <div class="cell-value">
+                            <code onclick="copyStyledChat(this)">@playername</code>
+                            <span class="arrow">→</span>
+                            <span class="mention">@playername</span>
+                            <span style="color: var(--text-dim); margin-left: 8px;">clickable DM</span>
+                        </div>
+                    </div>
+                    <div class="card-row">
+                        <div class="cell-label">Spoiler</div>
+                        <div class="cell-value">
+                            <code onclick="copyStyledChat(this)">||hidden||</code>
+                            <span class="arrow">→</span>
+                            <span class="spoiler">hidden text</span>
+                            <span style="color: var(--text-dim); margin-left: 8px;">hover to reveal</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="section">
+                <div class="section-title">Emoticons — Type :name: in chat</div>
+                <div class="card" style="padding: 0;">
+                    <div class="emo-grid">
+                        <div class="emo-item" onclick="copyStyledChatText(':zzz:')">
+                            <span class="emo-char">💤</span>
+                            <code class="emo-code">:zzz:</code>
+                        </div>
+                        <div class="emo-item" onclick="copyStyledChatText(':question:')">
+                            <span class="emo-char">❓</span>
+                            <code class="emo-code">:question:</code>
+                        </div>
+                        <div class="emo-item" onclick="copyStyledChatText(':skull:')">
+                            <span class="emo-char">💀</span>
+                            <code class="emo-code">:skull:</code>
+                        </div>
+                        <div class="emo-item" onclick="copyStyledChatText(':mending_heart:')">
+                            <span class="emo-char">❤️‍🩹</span>
+                            <code class="emo-code">:mending_heart:</code>
+                        </div>
+                        <div class="emo-item" onclick="copyStyledChatText(':bell:')">
+                            <span class="emo-char">🔔</span>
+                            <code class="emo-code">:bell:</code>
+                        </div>
+                        <div class="emo-item" onclick="copyStyledChatText(':heart:')">
+                            <span class="emo-char">❤</span>
+                            <code class="emo-code">:heart:</code>
+                        </div>
+                        <div class="emo-item" onclick="copyStyledChatText(':pleading_face:')">
+                            <span class="emo-char">🥺</span>
+                            <code class="emo-code">:pleading_face:</code>
+                        </div>
+                        <div class="emo-item" onclick="copyStyledChatText(':check_mark:')">
+                            <span class="emo-char">✅</span>
+                            <code class="emo-code">:check_mark:</code>
+                        </div>
+                        <div class="emo-item" onclick="copyStyledChatText(':shears:')">
+                            <span class="emo-char">✂</span>
+                            <code class="emo-code">:shears:</code>
+                        </div>
+                        <div class="emo-item" onclick="copyStyledChatText(':fire:')">
+                            <span class="emo-char">🔥</span>
+                            <code class="emo-code">:fire:</code>
+                        </div>
+                        <div class="emo-item" onclick="copyStyledChatText(':item:')">
+                            <span class="emo-char" style="color: var(--text-muted); font-size: 0.8rem;">[held]</span>
+                            <code class="emo-code">:item:</code>
+                        </div>
+                        <div class="emo-item" onclick="copyStyledChatText(':pos:')">
+                            <span class="emo-char" style="color: var(--text-dim); font-size: 0.8rem;">x y z</span>
+                            <code class="emo-code">:pos:</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box" style="border-left-color: var(--text-muted); margin-top: 16px;">
+                    all <strong>JoyPixels</strong> emoji shortcodes also work — e.g. <code onclick="copyStyledChat(this)">:joy:</code> <code onclick="copyStyledChat(this)">:fire:</code> <code onclick="copyStyledChat(this)">:eyes:</code>
+                </div>
+            </section>
+            <section class="section">
+                <div class="section-title">Color Tags — Type in chat</div>
+                <div class="card" style="padding: 0;">
+                    <div class="color-grid">
+                        <div class="color-item" style="background: #aa0000; color: #ffaaaa;" onclick="copyStyledChatText('<dark_red>')">
+                            <code class="lighter-text">&lt;dark_red&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #ff5555; color: #fff;" onclick="copyStyledChatText('<red>')">
+                            <code>&lt;red&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #ffaa00; color: #3a2000;" onclick="copyStyledChatText('<gold>')">
+                            <code>&lt;gold&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #ffff55; color: #3a3a00;" onclick="copyStyledChatText('<yellow>')">
+                            <code>&lt;yellow&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #00aa00; color: #aaffaa;" onclick="copyStyledChatText('<dark_green>')">
+                            <code>&lt;dark_green&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #55ff55; color: #003a00;" onclick="copyStyledChatText('<green>')">
+                            <code>&lt;green&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #00aaaa; color: #aaffff;" onclick="copyStyledChatText('<dark_aqua>')">
+                            <code>&lt;dark_aqua&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #55ffff; color: #003a3a;" onclick="copyStyledChatText('<aqua>')">
+                            <code>&lt;aqua&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #0000aa; color: #aaaaff;" onclick="copyStyledChatText('<dark_blue>')">
+                            <code class="lighter-text">&lt;dark_blue&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #5555ff; color: #fff;" onclick="copyStyledChatText('<blue>')">
+                            <code>&lt;blue&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #aa00aa; color: #ffaaff;" onclick="copyStyledChatText('<dark_purple>')">
+                            <code class="lighter-text">&lt;dark_purple&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #ff55ff; color: #3a003a;" onclick="copyStyledChatText('<light_purple>')">
+                            <code>&lt;light_purple&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #ffffff; color: #333; border: 1px solid #444;" onclick="copyStyledChatText('<white>')">
+                            <code>&lt;white&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #aaaaaa; color: #111;" onclick="copyStyledChatText('<gray>')">
+                            <code>&lt;gray&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #555555; color: #ccc;" onclick="copyStyledChatText('<dark_gray>')">
+                            <code>&lt;dark_gray&gt;</code>
+                        </div>
+                        <div class="color-item" style="background: #000000; color: #888; border: 1px solid #222;" onclick="copyStyledChatText('<black>')">
+                            <code class="lighter-text">&lt;black&gt;</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box" style="margin-top: 16px;">
+                    Also: <code onclick="copyStyledChat(this)">&lt;bold&gt;</code> <code onclick="copyStyledChat(this)">&lt;italic&gt;</code> <code onclick="copyStyledChat(this)">&lt;underline&gt;</code> <code onclick="copyStyledChat(this)">&lt;strikethrough&gt;</code> <code onclick="copyStyledChat(this)">&lt;spoiler&gt;</code>
+                    <br>Close with <code onclick="copyStyledChat(this)">&lt;/tag&gt;</code> or <code onclick="copyStyledChat(this)">&lt;reset&gt;</code>
+                </div>
+            </section>
+            <section class="section">
+                <div class="info-box" style="margin-top: 16px;">
+                    <strong>Links</strong> — paste any URL and it becomes clickable automatically. No extra syntax needed.
+                </div>
+            </section>
+            <div class="toast" id="styledchat-toast">Copied to clipboard</div>
+        </div>
     </div>
-<!-- ----------------------end of page1----------------- note to self -->
+<!-- ----------------------end of page3----------------- note to self -->
 
   <script>
     function initMotionTabs({ tabsEl, hoverBgEl, activeLineEl, contentEl, lightMode }) {
@@ -236,6 +433,21 @@
         document.getElementById("serverinfo").textContent = "Error: " + err;
     });
     //page 2 beneath me
+        function copyStyledChat(element) {
+            const text = element.textContent;
+            copyStyledChatText(text);
+        }
+                // these two essentially just copy the element/text you click on
+        function copyStyledChatText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('styledchat-toast');
+                toast.textContent = 'Copied: ' + text;
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2000);
+            });
+        }
   </script>
 </body>
 </html>

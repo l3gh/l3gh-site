@@ -129,18 +129,19 @@
         padding-left: 2vh;
     }
     .server-api {
-        background-color: rgb(50, 50, 50);
+        background: var(--bg-card, #111111);
+        border: 1px solid var(--border, #1f1f1f);
         border-radius: 8px;
-        border-style: none;
-        border-width: 1px;
-        justify-content: center;
-        display: grid;
+        overflow: hidden;
         margin-top: 5vh;
     }
+
     .server-return {
-        color: #fff;
+        display: grid;
+        justify-content: center;
         padding: 4vh;
         font-size: xx-large;
+        color: #fff;
     }
     .server-status .online {
     color: green;
@@ -187,7 +188,7 @@
     }
     .list-head {
         font-size: x-large;
-        color: #fff;
+        color: #ccc;
         margin: 2vh;
         margin-top: 4vh;
     } /* this is the HEADING, not the HEADS*/

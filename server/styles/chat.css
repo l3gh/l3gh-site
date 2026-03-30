@@ -264,6 +264,11 @@
                 padding: 24px 16px;
             }
 
+            .server-api{
+                margin-left: 16px;
+                margin-right: 16px;
+            }
+
             .styledchat-ref .card-row {
                 grid-template-columns: 100px 1fr;
             }

@@ -63,6 +63,11 @@ function loadPlayerList() {
       
 }
 
+function cleanupTooltips() {
+    // Find any shulker popups or item tooltips and remove them
+    document.querySelectorAll('.shulker-popup, .item-tooltip').forEach(el => el.remove());
+}
+
 function loadProfile(uuid) {
     document.getElementById("player-stats").innerHTML = '<p class="fetching-txt">Fetching...</p>';
     fetch(`https://l3gh.com/api/player/${uuid}`)
@@ -251,6 +256,7 @@ let viewingUuid  = null;
 // called from players.js loadProfile after the profile is shown
 function invSetPlayer(uuid) {
     viewingUuid = uuid;
+    lastInvData = null;
     if (pollTimer) clearInterval(pollTimer);
 
     const container = document.getElementById('player-inventory');
@@ -268,14 +274,26 @@ function fetchAndRender(uuid) {
             return res.json();
         })
         .then(data => {
-            if (uuid !== viewingUuid) return; // navigated away
+            if (uuid !== viewingUuid) return; 
+
+            // Convert the data to a string to compare it easily
+            const currentDataStr = JSON.stringify(data);
+
+            // IF the string is exactly the same as last time, STOP HERE.
+            if (currentDataStr === lastInvData) {
+                console.log("Inventory unchanged, skipping render.");
+                return; 
+            }
+
+            // Otherwise, update the cache and render
+            lastInvData = currentDataStr;
             renderInventoryPanel(data);
         })
         .catch(err => {
             const container = document.getElementById('player-inventory');
             if (!container || uuid !== viewingUuid) return;
             if (err.message === 'not found') {
-                container.innerHTML = '<p class="inv-waiting">No inventory data yet — player has not logged in since the mod was installed.</p>';
+                container.innerHTML = '<p class="inv-waiting">No inventory data yet.</p>';
             }
         });
 }
@@ -285,6 +303,7 @@ function renderInventoryPanel(data) {
     const container = document.getElementById('player-inventory');
     if (!container) return;
 
+    cleanupTooltips();  // i clean the ghost popups with this
     // preserve active tab across re-renders
     const activeTab = container.querySelector('.inv-tab.active');
     const activeIdx = activeTab ? parseInt(activeTab.dataset.idx) : 0;
@@ -378,6 +397,105 @@ function switchTab(index, tabs, panels) {
     panels.forEach((p, i) => p.classList.toggle('hidden', i !== index));
 }
 
+function getItemInfo(item) {
+    if (!item) return null;
+    
+    let name = formatItemName(item.id);
+    let nameClass = '';
+    
+    // Handle Custom Names (often JSON strings)
+    if (item.nbt?.display?.Name) {
+        try {
+            const parsed = JSON.parse(item.nbt.display.Name);
+            name = parsed.text || parsed;
+            nameClass = 'rarity-uncommon'; // Color named items
+        } catch(e) { name = item.nbt.display.Name; }
+    }
+
+    // Handle Enchantments
+    let enchants = [];
+    const rawEnchants = item.nbt?.Enchantments || item.nbt?.StoredEnchantments || [];
+    rawEnchants.forEach(en => {
+        const enName = en.id.replace('minecraft:', '').replace(/_/g, ' ');
+        enchants.push(`${enName.charAt(0).toUpperCase() + enName.slice(1)} ${en.lvl}`);
+    });
+
+    // Handle Lore
+    let lore = [];
+    if (item.nbt?.display?.Lore) {
+        item.nbt.display.Lore.forEach(line => {
+            try {
+                const parsed = JSON.parse(line);
+                lore.push(parsed.text || parsed);
+            } catch(e) { lore.push(line); }
+        });
+    }
+
+    return { name, nameClass, enchants, lore };
+}
+
+function createTooltipElement(item, info, isSticky) {
+    const div = document.createElement('div');
+    div.className = 'item-tooltip' + (isSticky ? ' sticky' : '');
+    
+    // 1. Item Name
+    let html = `<span class="tt-name ${info.nameClass}">${info.name}</span>`;
+    
+    // 2. Enchantments (Cyan-ish color)
+    if (info.enchants && info.enchants.length > 0) {
+        html += `<div class="tt-enchants">` + 
+                info.enchants.map(en => `<span class="tt-enchant-line">${en}</span>`).join('') + 
+                `</div>`;
+    }
+    
+    // 3. Lore (Purple-ish color)
+    if (info.lore && info.lore.length > 0) {
+        html += `<div class="tt-lore">${info.lore.join('<br>')}</div>`;
+    }
+
+    div.innerHTML = html;
+
+    // 4. Shulker Contents (Special Case)
+    if (item.id.includes('shulker_box')) {
+        const shulkerData = item.nbt?.BlockEntityTag?.Items || [];
+        if (shulkerData.length > 0) {
+            const label = document.createElement('p');
+            label.className = 'shulker-label';
+            label.style.marginTop = '8px';
+            label.textContent = "Contents:";
+            div.appendChild(label);
+
+            const grid = document.createElement('div');
+            grid.className = 'inv-grid shulker-grid tt-shulker-grid';
+            
+            const contents = new Array(27).fill(null);
+            shulkerData.forEach(entry => {
+                const s = typeof entry.Slot === 'object' ? entry.Slot.value : entry.Slot;
+                const c = typeof entry.Count === 'object' ? entry.Count.value : entry.Count;
+                if (s >= 0 && s < 27) {
+                    contents[s] = { id: entry.id, count: c ?? 1, nbt: entry.tag };
+                }
+            });
+
+            // Note: We use a simplified version of makeSlot or just images here 
+            // to avoid infinite tooltip recursion!
+            contents.forEach(c => {
+                const s = document.createElement('div');
+                s.className = 'inv-slot' + (c ? ' filled' : '');
+                if (c) {
+                    const img = document.createElement('img');
+                    img.src = itemTexture(c.id);
+                    s.appendChild(img);
+                }
+                grid.appendChild(s);
+            });
+            div.appendChild(grid);
+        }
+    }
+
+    return div;
+}
+
 // ── slot element ──────────────────────────────────────────────────────────────
 function makeSlot(item) {
     const slot = document.createElement('div');
@@ -385,13 +503,16 @@ function makeSlot(item) {
     if (!item || !item.id) return slot;
 
     slot.classList.add('filled');
+    const info = getItemInfo(item); // Using the parser from my previous reply
 
     const img = document.createElement('img');
     img.src = itemTexture(item.id);
-    img.alt = item.id;
+    // Setting alt to empty string helps stop the "mi" flash in some browsers
+    img.alt = ""; 
+    
+    // Fallback logic
     img.onerror = () => {
         const name = item.id.replace('minecraft:', '');
-        img.onerror = () => { img.style.display = 'none'; };
         img.src = `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/${name}.png`;
     };
     slot.appendChild(img);
@@ -403,78 +524,62 @@ function makeSlot(item) {
         slot.appendChild(count);
     }
 
-    slot.title = formatItemName(item.id);
+    // TOOLTIP & POPUP LOGIC
+    let currentPopup = null;
 
-    if (item.id.includes('shulker_box')) {
-        attachShulkerPopup(slot, item);
-    }
+    const show = (isSticky) => {
+        // Close any other open tooltips first
+        cleanupTooltips();
+        
+        currentPopup = createTooltipElement(item, info, isSticky);
+        document.body.appendChild(currentPopup);
+        positionPopup(currentPopup, slot);
+    };
+
+    const hide = () => {
+        if (currentPopup && !currentPopup.classList.contains('sticky')) {
+            currentPopup.remove();
+            currentPopup = null;
+        }
+    };
+
+    // Desktop Hover
+    slot.addEventListener('mouseenter', () => show(false));
+    slot.addEventListener('mouseleave', hide);
+
+    // Mobile/PC Click (Toggle)
+    slot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const existing = document.querySelector('.item-tooltip.sticky');
+        if (existing) {
+            cleanupTooltips();
+        } else {
+            show(true);
+        }
+    });
 
     return slot;
 }
 
-// ── shulker popup ─────────────────────────────────────────────────────────────
-function attachShulkerPopup(slot, item) {
-    const items = item.nbt?.BlockEntityTag?.Items || [];
-    if (items.length === 0) return;
-
-    const contents = new Array(27).fill(null);
-    items.forEach(entry => {
-        // NBT ints can be wrapped as {type, value} objects by NbtOps
-        const s = typeof entry.Slot === 'object' ? entry.Slot.value : entry.Slot;
-        const c = typeof entry.Count === 'object' ? entry.Count.value : entry.Count;
-        if (s >= 0 && s < 27) {
-            contents[s] = { id: entry.id, count: c ?? 1, nbt: entry.tag };
-        }
-    });
-
-    let popup = null;
-
-    function showPopup() {
-        if (popup) return;
-        popup = document.createElement('div');
-        popup.className = 'shulker-popup';
-
-        const label = document.createElement('p');
-        label.className = 'shulker-label';
-        label.textContent = formatItemName(item.id);
-        popup.appendChild(label);
-
-        const grid = document.createElement('div');
-        grid.className = 'inv-grid shulker-grid';
-        contents.forEach(c => grid.appendChild(makeSlot(c)));
-        popup.appendChild(grid);
-
-        document.body.appendChild(popup);
-        positionPopup(popup, slot);
-    }
-
-    function hidePopup() {
-        if (popup) { popup.remove(); popup = null; }
-    }
-
-    function positionPopup(pop, anchor) {
-        const rect = anchor.getBoundingClientRect();
-        const pw   = pop.offsetWidth  || 220;
-        const ph   = pop.offsetHeight || 120;
-        let left   = rect.left + window.scrollX;
-        let top    = rect.bottom + window.scrollY + 6;
-
-        if (left + pw > window.innerWidth) left = window.innerWidth - pw - 8;
-        if (top + ph > window.innerHeight + window.scrollY) top = rect.top + window.scrollY - ph - 6;
-
-        pop.style.left = left + 'px';
-        pop.style.top  = top  + 'px';
-    }
-
-    slot.addEventListener('mouseenter', showPopup);
-    slot.addEventListener('mouseleave', hidePopup);
-    slot.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        popup ? hidePopup() : showPopup();
-    }, { passive: false });
-}
 
 // ── helpers ───────────────────────────────────────────────────────────────────
+function positionPopup(pop, anchor) {
+    const rect = anchor.getBoundingClientRect();
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+
+    // Position to the right of the cursor/slot
+    let x = rect.right + scrollX + 10;
+    let y = rect.top + scrollY - 10;
+
+    // Screen boundary checks
+    if (x + 300 > window.innerWidth) x = rect.left + scrollX - 310;
+    if (y + 200 > window.innerHeight + scrollY) y = window.innerHeight + scrollY - 210;
+
+    pop.style.left = x + 'px';
+    pop.style.top = y + 'px';
+}
+
 function itemTexture(id) {
     const name = id.replace('minecraft:', '');
     return `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/${name}.png`;
@@ -495,3 +600,7 @@ function timeAgoInv(ms) {
     if (minutes > 0) return `${minutes}m ago`;
     return 'just now';
 }
+
+document.addEventListener('click', () => {
+    cleanupTooltips();
+});

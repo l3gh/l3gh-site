@@ -158,3 +158,256 @@
 .inv-slot.filled[title*="Shulker"] {
     cursor: pointer;
 }
+
+/* Fix for the "weird" rendering: lock the grid width */
+.inv-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 36px);
+    gap: 2px;
+    width: 340px; /* (9 * 36) + (8 * 2) = 340px */
+}
+
+/* Unified Tooltip Styling */
+.item-tooltip {
+    position: fixed;
+    z-index: 1000;
+    background: rgba(16, 1, 16, 0.95); /* Classic MC dark purple/black */
+    border: 2px solid #280659; /* Purple border */
+    padding: 8px 12px;
+    pointer-events: none;
+    font-family: 'Geist', sans-serif;
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    max-width: 280px;
+    border-radius: 4px;
+}
+
+.item-tooltip.sticky {
+    pointer-events: auto; /* Allow clicking inside if needed */
+}
+
+.tt-name { 
+    display: block; 
+    font-weight: 700; 
+    margin-bottom: 4px; 
+    font-size: 0.9rem;
+}
+
+/* Rarity/Type Colors */
+.tt-name.rarity-uncommon { color: #ffff55; }
+.tt-name.rarity-rare { color: #55ffff; }
+.tt-name.rarity-epic { color: #ff55ff; }
+
+.tt-enchants {
+    color: #7f7f7f; /* Gray for enchants */
+    font-size: 0.8rem;
+    margin: 4px 0;
+}
+
+.tt-enchant-line { display: block; color: #aaaaaa; }
+
+.tt-lore {
+    color: #aa00aa; /* Classic purple lore */
+    font-size: 0.8rem;
+    font-style: italic;
+    margin-top: 4px;
+    border-top: 1px solid #333;
+    padding-top: 4px;
+}
+
+/* Shulker Grid inside Tooltip */
+.tt-shulker-grid {
+    margin-top: 8px;
+    border-top: 1px solid #333;
+    padding-top: 8px;
+}
+
+/* ── inventory panel ─────────────────────────────────────────────────────────── */
+
+#player-inventory {
+    margin-top: 2rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.inv-waiting {
+    color: #666;
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+}
+
+/* ── tabs (pill style) ───────────────────────────────────────────────────────── */
+.inv-tabs {
+    display: inline-flex;
+    gap: 4px;
+    margin-bottom: 1.25rem;
+    background: #111;
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid #222;
+}
+
+.inv-tab {
+    background: transparent;
+    border: none;
+    color: #666;
+    font-family: 'Geist', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.inv-tab:hover {
+    color: #aaa;
+    background: #1a1a1a;
+}
+
+.inv-tab.active {
+    color: #fff;
+    background: #222;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+/* ── panels ────────────────────────────────────────────────────────────────── */
+.inv-panel.hidden { display: none; }
+
+.inv-main-area {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px; /* Increased gap for breathing room */
+    margin-bottom: 8px;
+}
+
+/* ── slots & grids ──────────────────────────────────────────────────────────── */
+.inv-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 36px);
+    gap: 3px; /* Slightly wider gap for a cleaner look */
+}
+
+.inv-armor-col {
+    display: grid;
+    grid-template-columns: 36px;
+    gap: 3px;
+}
+
+.inv-hotbar-wrap {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #1a1a1a;
+}
+
+.inv-slot {
+    width: 36px;
+    height: 36px;
+    background: #0f0f0f;
+    border: 1px solid #222;
+    border-radius: 4px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    image-rendering: pixelated;
+    transition: transform 0.1s ease, border-color 0.2s ease, background 0.2s ease;
+    /* Inset shadow for "recessed" look */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.inv-slot.filled {
+    border-color: #333;
+    background: #161616;
+}
+
+.inv-slot.filled:hover {
+    border-color: #444;
+    background: #1c1c1c;
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.inv-slot img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+/* stack count badge */
+.inv-count {
+    position: absolute;
+    bottom: 2px;
+    right: 3px;
+    font-size: 10px;
+    font-family: 'Geist', sans-serif;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* ── shulker popup ───────────────────────────────────────────────────────────── */
+.shulker-popup {
+    position: absolute;
+    z-index: 999;
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(8px); /* Modern blur effect */
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 10px;
+    pointer-events: none;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.shulker-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    margin: 0 0 8px 2px;
+    font-family: 'Geist', sans-serif;
+}
+
+.shulker-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 30px);
+    gap: 3px;
+}
+
+.shulker-grid .inv-slot {
+    width: 30px;
+    height: 30px;
+    border-radius: 3px;
+}
+
+.shulker-grid .inv-slot img {
+    width: 22px;
+    height: 22px;
+}
+
+/* Subtle indicator for interactive items */
+.inv-slot.filled[title*="Shulker"] {
+    cursor: pointer;
+}
+
+.inv-slot.filled[title*="Shulker"]::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 4px;
+    height: 4px;
+    background: #555;
+    border-radius: 50%;
+}

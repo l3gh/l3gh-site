@@ -503,17 +503,23 @@ function makeSlot(item) {
     if (!item || !item.id) return slot;
 
     slot.classList.add('filled');
-    const info = getItemInfo(item); // Using the parser from my previous reply
+    const info = getItemInfo(item);
 
     const img = document.createElement('img');
+    const itemName = item.id.replace('minecraft:', '');
     img.src = itemTexture(item.id);
-    // Setting alt to empty string helps stop the "mi" flash in some browsers
-    img.alt = ""; 
+    img.alt = "";
     
-    // Fallback logic
     img.onerror = () => {
-        const name = item.id.replace('minecraft:', '');
-        img.src = `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/${name}.png`;
+        if (img.src.includes('/item/')) {
+            img.src = `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/${itemName}.png`;
+        } 
+        else if (img.src.includes('/block/')) {
+            img.src = `https://minecraftitemids.com/item/32/${itemName}.png`;
+        }
+        else {
+            img.style.display = 'none'; // Hide if completely missing
+        }
     };
     slot.appendChild(img);
 
@@ -565,16 +571,33 @@ function makeSlot(item) {
 // ── helpers ───────────────────────────────────────────────────────────────────
 function positionPopup(pop, anchor) {
     const rect = anchor.getBoundingClientRect();
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
+    const popWidth = pop.offsetWidth;
+    const popHeight = pop.offsetHeight;
+    const padding = 10;
 
-    // Position to the right of the cursor/slot
-    let x = rect.right + scrollX + 10;
-    let y = rect.top + scrollY - 10;
+    // Default position: Try to show to the right of the slot
+    let x = rect.right + 10;
+    let y = rect.top - 10;
 
-    // Screen boundary checks
-    if (x + 300 > window.innerWidth) x = rect.left + scrollX - 310;
-    if (y + 200 > window.innerHeight + scrollY) y = window.innerHeight + scrollY - 210;
+    // 1. RIGHT EDGE CHECK: If it goes off the right, move it to the left of the slot
+    if (x + popWidth > window.innerWidth) {
+        x = rect.left - popWidth - 10;
+    }
+
+    // 2. LEFT EDGE CHECK: If it's STILL off (too wide for mobile), center it
+    if (x < 0) {
+        x = (window.innerWidth - popWidth) / 2;
+    }
+
+    // 3. BOTTOM EDGE CHECK: If it goes off the bottom, shift it up
+    if (y + popHeight > window.innerHeight) {
+        y = window.innerHeight - popHeight - padding;
+    }
+
+    // 4. TOP EDGE CHECK: Ensure it doesn't go off the top
+    if (y < padding) {
+        y = padding;
+    }
 
     pop.style.left = x + 'px';
     pop.style.top = y + 'px';

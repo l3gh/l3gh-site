@@ -1,230 +1,6 @@
 /* ── inventory panel ─────────────────────────────────────────────────────────── */
 
 #player-inventory {
-    margin-top: 1.5rem;
-}
-
-.inv-waiting {
-    color: #444;
-    font-size: 0.82rem;
-}
-
-/* tabs */
-.inv-tabs {
-    display: flex;
-    gap: 0.25rem;
-    margin-bottom: 0.75rem;
-}
-
-.inv-tab {
-    background: none;
-    border: 1px solid #222;
-    color: #444;
-    font-family: 'Geist', sans-serif;
-    font-size: 0.78rem;
-    padding: 0.3rem 0.75rem;
-    cursor: pointer;
-    border-radius: 3px;
-    transition: color 0.15s, border-color 0.15s;
-}
-
-.inv-tab:hover {
-    color: #888;
-    border-color: #333;
-}
-
-.inv-tab.active {
-    color: #eee;
-    border-color: #444;
-}
-
-/* panels */
-.inv-panel.hidden { display: none; }
-
-/* main area: armor | grid | offhand */
-.inv-main-area {
-    display: flex;
-    align-items: flex-start;
-    gap: 4px;
-    margin-bottom: 4px;
-}
-
-/* 9-wide grid (main inv, hotbar, ender chest) */
-.inv-grid {
-    display: grid;
-    grid-template-columns: repeat(9, 36px);
-    gap: 2px;
-}
-
-/* armor column: 1 wide, 4 tall */
-.inv-armor-col {
-    display: grid;
-    grid-template-columns: 36px;
-    gap: 2px;
-}
-
-/* hotbar separated by slightly more space */
-.inv-hotbar-wrap {
-    margin-top: 6px;
-    padding-top: 6px;
-    border-top: 1px solid #1e1e1e;
-}
-
-/* individual slot */
-.inv-slot {
-    width: 36px;
-    height: 36px;
-    background: #141414;
-    border: 1px solid #1f1f1f;
-    border-radius: 2px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    image-rendering: pixelated;
-}
-
-.inv-slot.filled {
-    border-color: #2a2a2a;
-}
-
-.inv-slot.filled:hover {
-    border-color: #3a3a3a;
-    background: #1a1a1a;
-}
-
-.inv-slot img {
-    width: 28px;
-    height: 28px;
-    object-fit: contain;
-    image-rendering: pixelated;
-    pointer-events: none;
-}
-
-/* stack count badge */
-.inv-count {
-    position: absolute;
-    bottom: 1px;
-    right: 2px;
-    font-size: 10px;
-    font-family: 'Geist', sans-serif;
-    font-weight: 500;
-    color: #fff;
-    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
-    pointer-events: none;
-    line-height: 1;
-}
-
-/* ── shulker popup ───────────────────────────────────────────────────────────── */
-.shulker-popup {
-    position: absolute;
-    z-index: 999;
-    background: #111;
-    border: 1px solid #2a2a2a;
-    border-radius: 4px;
-    padding: 8px;
-    pointer-events: none;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
-}
-
-.shulker-label {
-    font-size: 0.72rem;
-    color: #555;
-    margin: 0 0 6px 0;
-    font-family: 'Geist', sans-serif;
-}
-
-.shulker-grid {
-    grid-template-columns: repeat(9, 28px);
-    gap: 2px;
-}
-
-.shulker-grid .inv-slot {
-    width: 28px;
-    height: 28px;
-}
-
-.shulker-grid .inv-slot img {
-    width: 22px;
-    height: 22px;
-}
-
-.shulker-grid .inv-count {
-    font-size: 8px;
-}
-
-/* shulker slots get a subtle color tint on the slot indicator */
-.inv-slot.filled[title*="Shulker"] {
-    cursor: pointer;
-}
-
-/* Fix for the "weird" rendering: lock the grid width */
-.inv-grid {
-    display: grid;
-    grid-template-columns: repeat(9, 36px);
-    gap: 2px;
-    width: 340px; /* (9 * 36) + (8 * 2) = 340px */
-}
-
-/* Unified Tooltip Styling */
-.item-tooltip {
-    position: fixed;
-    z-index: 1000;
-    background: rgba(16, 1, 16, 0.95); /* Classic MC dark purple/black */
-    border: 2px solid #280659; /* Purple border */
-    padding: 8px 12px;
-    pointer-events: none;
-    font-family: 'Geist', sans-serif;
-    color: #fff;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-    max-width: 280px;
-    border-radius: 4px;
-}
-
-.item-tooltip.sticky {
-    pointer-events: auto; /* Allow clicking inside if needed */
-}
-
-.tt-name { 
-    display: block; 
-    font-weight: 700; 
-    margin-bottom: 4px; 
-    font-size: 0.9rem;
-}
-
-/* Rarity/Type Colors */
-.tt-name.rarity-uncommon { color: #ffff55; }
-.tt-name.rarity-rare { color: #55ffff; }
-.tt-name.rarity-epic { color: #ff55ff; }
-
-.tt-enchants {
-    color: #7f7f7f; /* Gray for enchants */
-    font-size: 0.8rem;
-    margin: 4px 0;
-}
-
-.tt-enchant-line { display: block; color: #aaaaaa; }
-
-.tt-lore {
-    color: #aa00aa; /* Classic purple lore */
-    font-size: 0.8rem;
-    font-style: italic;
-    margin-top: 4px;
-    border-top: 1px solid #333;
-    padding-top: 4px;
-}
-
-/* Shulker Grid inside Tooltip */
-.tt-shulker-grid {
-    margin-top: 8px;
-    border-top: 1px solid #333;
-    padding-top: 8px;
-}
-
-/* ── inventory panel ─────────────────────────────────────────────────────────── */
-
-#player-inventory {
     margin-top: 2rem;
     animation: fadeIn 0.3s ease-out;
 }
@@ -281,15 +57,17 @@
 .inv-main-area {
     display: flex;
     align-items: flex-start;
-    gap: 8px; /* Increased gap for breathing room */
+    gap: 8px;
     margin-bottom: 8px;
 }
 
 /* ── slots & grids ──────────────────────────────────────────────────────────── */
 .inv-grid {
     display: grid;
-    grid-template-columns: repeat(9, 36px);
-    gap: 3px; /* Slightly wider gap for a cleaner look */
+    grid-template-columns: repeat(9, 1fr); 
+    gap: 3px;
+    width: max-content; 
+    max-width: 100%;  /*.. PLEASE dont overflow IM BEGGING YOUUUU */
 }
 
 .inv-armor-col {
@@ -317,7 +95,6 @@
     box-sizing: border-box;
     image-rendering: pixelated;
     transition: transform 0.1s ease, border-color 0.2s ease, background 0.2s ease;
-    /* Inset shadow for "recessed" look */
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
 }
 
@@ -357,18 +134,6 @@
 }
 
 /* ── shulker popup ───────────────────────────────────────────────────────────── */
-.shulker-popup {
-    position: absolute;
-    z-index: 999;
-    background: rgba(15, 15, 15, 0.95);
-    backdrop-filter: blur(8px); /* Modern blur effect */
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 10px;
-    pointer-events: none;
-    box-shadow: 0 12px 24px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05);
-}
-
 .shulker-label {
     font-size: 0.7rem;
     font-weight: 600;
@@ -382,7 +147,8 @@
 .shulker-grid {
     display: grid;
     grid-template-columns: repeat(9, 30px);
-    gap: 3px;
+    gap: 2px; 
+    width: max-content;  /* i'll be SUPER mad if you overflow again.*/
 }
 
 .shulker-grid .inv-slot {
@@ -410,4 +176,77 @@
     height: 4px;
     background: #555;
     border-radius: 50%;
+}
+
+/* ── tooltip styling ────────────────────────────────────────────────────────── */
+.item-tooltip, .shulker-popup {
+    position: fixed; /* Ensures JS positioning works correctly */
+    z-index: 10000;
+    background: rgba(16, 1, 16, 0.98);
+    border: 2px solid #280659;
+    padding: 12px;
+    pointer-events: none;
+    /* Allow it to expand to fit the 9-slot grid, but not more than the screen */
+    width: max-content;
+    max-width: 90vw; 
+    border-radius: 4px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+}
+
+    .item-tooltip.sticky {
+    pointer-events: auto;
+}
+
+.tt-name { 
+    display: block; 
+    font-weight: 700; 
+    margin-bottom: 4px; 
+    font-size: 0.9rem;
+}
+
+/* Rarity/Type Colors */
+.tt-name.rarity-uncommon { color: #ffff55; }
+.tt-name.rarity-rare { color: #55ffff; }
+.tt-name.rarity-epic { color: #ff55ff; }
+
+.tt-enchants {
+    color: #7f7f7f;
+    font-size: 0.8rem;
+    margin: 4px 0;
+}
+
+.tt-enchant-line { display: block; color: #aaaaaa; }
+
+.tt-lore {
+    color: #aa00aa;
+    font-size: 0.8rem;
+    font-style: italic;
+    margin-top: 4px;
+    border-top: 1px solid #333;
+    padding-top: 4px;
+}
+
+/* Shulker Grid inside Tooltip */
+.tt-shulker-grid {
+    margin-top: 8px;
+    border-top: 1px solid #333;
+    padding-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(9, 30px);
+    gap: 2px;
+}
+
+@media (max-width: 400px) {  /* turns out some ppl have smaller phones? */
+    .inv-slot {
+        width: 32px;
+        height: 32px;
+    }
+    .inv-grid {
+        grid-template-columns: repeat(9, 32px);
+        gap: 1px;
+    }
+    .inv-slot img {
+        width: 22px;
+        height: 22px;
+    }
 }

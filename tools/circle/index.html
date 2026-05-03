@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base target="_blank">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>l3gh - Mandala</title>
+    <link rel="icon" href="https://l3gh.com/assets/images/home-favicon.jpg">
+    <meta property="og:image" content="https://l3gh.com/assets/images/home-favicon.jpg"/>
+    <link rel="stylesheet" href="./styles/main.css">
+    <meta name="description" content="Minecraft tools by @l3gh <3">
+    <meta name="theme-color" content="#ffffff">
+    <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<h1>circle generator</h1>
+<div class="subtitle" id="radiusLabel">Radius: 82 blocks — pixel = 1 block</div>
+
+<div class="controls">
+  <div class="ctrl-group">
+    <label>radius</label>
+    <button class="btn" id="radDown" style="padding:4px 8px; font-size:10px;" title="-1">◀</button>
+    <input type="range" id="radiusRange" min="6" max="128" step="1" value="82">
+    <div class="val-display" id="radiusVal">82</div>
+    <button class="btn" id="radUp" style="padding:4px 8px; font-size:10px;" title="+1">▶</button>
+  </div>
+  <div class="ctrl-group">
+    <label>symmetry</label>
+    <select id="symSel">
+      <option value="4">4-fold</option>
+      <option value="8" selected>8-fold</option>
+      <option value="16">16-fold</option>
+    </select>
+  </div>
+  <div class="ctrl-group">
+    <label>pattern</label>
+    <select id="patSel">
+      <option value="rings">Rings</option>
+      <option value="petals" selected>Petals</option>
+      <option value="diamond">Diamond</option>
+      <option value="star">Star</option>
+      <option value="spiral">Spiral</option>
+      <option value="blank">Blank Canvas</option>
+    </select>
+  </div>
+  <div class="ctrl-group">
+    <label>zoom</label>
+    <input type="range" id="zoomRange" min="1" max="6" step="0.5" value="3">
+    <div class="val-display" id="zoomVal">3x</div>
+  </div>
+  <button class="btn" id="genBtn">generate</button>
+  <button class="btn danger" id="clearBtn">clear</button>
+  <button class="btn" id="dlBtn">export PNG</button>
+</div>
+
+<!-- Palette -->
+<div class="palette-row" id="palette"></div>
+
+<div class="info-bar">
+  diameter: <span>165 blocks</span>   area: <span id="areaBlocks">—</span> blocks   cursor: <span id="cursorPos">—</span>
+</div>
+
+<div class="canvas-wrap" id="canvasWrap">
+  <canvas id="mc"></canvas>
+</div>
+
+<div class="legend">
+  Click or drag to <span>paint</span> blocks.<br>
+  Right-click to <span>erase</span>.
+</div>
+
+<script>
+// ---- CONFIG ----
+let RADIUS = 82;
+let GRID = RADIUS * 2 + 1;
+
+function setRadius(r) {
+  if (r < 6) r = 6;
+  if (r > 128) r = 128;
+  RADIUS = r;
+  GRID = RADIUS * 2 + 1;
+  cells = new Uint8Array(GRID * GRID);
+  document.getElementById('radiusLabel').textContent = 'Radius: ' + RADIUS + ' blocks — pixel = 1 block';
+  document.getElementById('radiusVal').textContent = RADIUS;
+  document.getElementById('radiusRange').value = RADIUS;
+  setZoom(zoom);
+  generatePattern();
+  recalcArea();
+}
+
+// ---- Minecraft-ish palette ----
+const PALETTE = [
+  { name: 'Stone',          color: '#8a8a8a' },
+  { name: 'Cobble',         color: '#6e6e6e' },
+  { name: 'Deepslate',      color: '#404052' },
+  { name: 'Quartz',         color: '#e8e2d6' },
+  { name: 'White Concrete', color: '#d5d5d5' },
+  { name: 'Light Gray',     color: '#9d9d97' },
+  { name: 'Calcite',        color: '#e9e4dc' },
+  { name: 'Andesite',       color: '#898989' },
+  { name: 'Diorite',        color: '#c8c8c8' },
+  { name: 'Granite',        color: '#9f6b4e' },
+  { name: 'Terracotta',     color: '#9d6247' },
+  { name: 'Orange Con.',    color: '#e07620' },
+  { name: 'Yellow Con.',    color: '#f6c623' },
+  { name: 'Lime Con.',      color: '#5ea718' },
+  { name: 'Green Con.',     color: '#364a18' },
+  { name: 'Cyan Con.',      color: '#157a8c' },
+  { name: 'Light Blue',     color: '#3aafd9' },
+  { name: 'Blue Con.',      color: '#2d2f8f' },
+  { name: 'Purple Con.',    color: '#641e8c' },
+  { name: 'Magenta',        color: '#b02dac' },
+  { name: 'Pink Con.',      color: '#d7658b' },
+  { name: 'Red Con.',       color: '#8e2020' },
+  { name: 'Nether Brick',   color: '#2d1212' },
+  { name: 'Blackstone',     color: '#1c1c24' },
+  { name: 'Black Con.',     color: '#080a0f' },
+  { name: 'Gold Block',     color: '#f7c943' },
+  { name: 'Lapis',          color: '#1a3d8f' },
+  { name: 'Emerald',        color: '#21a855' },
+  { name: 'Diamond Block',  color: '#4dd7d4' },
+  { name: 'Netherite',      color: '#443c42' },
+  { name: 'Amethyst',       color: '#7052ab' },
+  { name: 'Prismarine',     color: '#5e9a8e' },
+  // Eraser
+  { name: '— Erase —',      color: null },
+];
+
+// ---- State ----
+let zoom = 3;
+let cells = new Uint8Array(GRID * GRID); // index into palette (0=empty)
+let activePalIdx = 1; // Stone
+let painting = false;
+let paintColor = 0;
+let symmetry = 8;
+let pattern = 'petals';
+
+// ---- Canvas ----
+const canvas = document.getElementById('mc');
+const ctx = canvas.getContext('2d');
+
+function setZoom(z) {
+  zoom = z;
+  canvas.width  = GRID * zoom;
+  canvas.height = GRID * zoom;
+  redraw();
+}
+
+// ---- Draw ----
+function redraw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // draw cells
+  for (let y = 0; y < GRID; y++) {
+    for (let x = 0; x < GRID; x++) {
+      const ci = cells[y * GRID + x];
+      if (ci > 0) {
+        const p = PALETTE[ci - 1];
+        if (p && p.color) {
+          ctx.fillStyle = p.color;
+          ctx.fillRect(x * zoom, y * zoom, zoom, zoom);
+        }
+      }
+    }
+  }
+
+  // grid lines (only if zoom >= 3)
+  if (zoom >= 3) {
+    ctx.strokeStyle = 'rgba(102,102,102,0.05)';
+    ctx.lineWidth = 0.5;
+    for (let x = 0; x <= GRID; x++) {
+      ctx.beginPath(); ctx.moveTo(x * zoom, 0); ctx.lineTo(x * zoom, GRID * zoom); ctx.stroke();
+    }
+    for (let y = 0; y <= GRID; y++) {
+      ctx.beginPath(); ctx.moveTo(0, y * zoom); ctx.lineTo(GRID * zoom, y * zoom); ctx.stroke();
+    }
+  }
+
+  // circle boundary
+  ctx.strokeStyle = 'rgba(102,102,102,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc((RADIUS + 0.5) * zoom, (RADIUS + 0.5) * zoom, (RADIUS + 0.5) * zoom, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // crosshair
+  ctx.strokeStyle = 'rgba(102,102,102,0.12)';
+  ctx.lineWidth = 1;
+  const cx = (RADIUS + 0.5) * zoom, cy = (RADIUS + 0.5) * zoom;
+  ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy); ctx.stroke();
+}
+
+// ---- Symmetry painting ----
+function mirrorPoints(gx, gy) {
+  const dx = gx - RADIUS, dy = gy - RADIUS;
+  const pts = new Set();
+  const add = (x, y) => {
+    const nx = x + RADIUS, ny = y + RADIUS;
+    if (nx >= 0 && nx < GRID && ny >= 0 && ny < GRID) pts.add(ny * GRID + nx);
+  };
+  const s = symmetry;
+  for (let i = 0; i < s; i++) {
+    const angle = (2 * Math.PI * i) / s;
+    const cos = Math.cos(angle), sin = Math.sin(angle);
+    const rx = Math.round(dx * cos - dy * sin);
+    const ry = Math.round(dx * sin + dy * cos);
+    add(rx, ry);
+    add(-rx, ry); // mirror
+  }
+  return pts;
+}
+
+function paintAt(gx, gy, colorIdx) {
+  const dx = gx - RADIUS, dy = gy - RADIUS;
+  if (dx * dx + dy * dy > (RADIUS + 1) * (RADIUS + 1)) return;
+  const pts = mirrorPoints(gx, gy);
+  let changed = false;
+  pts.forEach(idx => {
+    if (cells[idx] !== colorIdx) { cells[idx] = colorIdx; changed = true; }
+  });
+  if (changed) redraw();
+}
+
+function gridCoord(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const px = (e.clientX - rect.left) * scaleX;
+  const py = (e.clientY - rect.top) * scaleY;
+  return { gx: Math.floor(px / zoom), gy: Math.floor(py / zoom) };
+}
+
+canvas.addEventListener('mousedown', e => {
+  e.preventDefault();
+  painting = true;
+  const isErase = e.button === 2 || PALETTE[activePalIdx].color === null;
+  paintColor = isErase ? 0 : activePalIdx + 1;
+  const { gx, gy } = gridCoord(e);
+  paintAt(gx, gy, paintColor);
+});
+canvas.addEventListener('mousemove', e => {
+  if (!painting) {
+    const { gx, gy } = gridCoord(e);
+    document.getElementById('cursorPos').textContent = `${gx - RADIUS}, ${gy - RADIUS}`;
+    return;
+  }
+  const { gx, gy } = gridCoord(e);
+  paintAt(gx, gy, paintColor);
+});
+canvas.addEventListener('mouseup', () => painting = false);
+canvas.addEventListener('mouseleave', () => { painting = false; document.getElementById('cursorPos').textContent = '—'; });
+canvas.addEventListener('contextmenu', e => { e.preventDefault(); });
+
+// Touch support
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  painting = true;
+  paintColor = PALETTE[activePalIdx].color === null ? 0 : activePalIdx + 1;
+  const t = e.touches[0];
+  const { gx, gy } = gridCoord(t);
+  paintAt(gx, gy, paintColor);
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  const { gx, gy } = gridCoord(t);
+  paintAt(gx, gy, paintColor);
+}, { passive: false });
+canvas.addEventListener('touchend', () => painting = false);
+
+// ---- Palette UI ----
+const palRow = document.getElementById('palette');
+PALETTE.forEach((p, i) => {
+  const sw = document.createElement('div');
+  sw.className = 'swatch' + (i === activePalIdx ? ' active' : '');
+  sw.title = p.name;
+  sw.style.background = p.color || '#111';
+  if (!p.color) {
+    sw.style.border = '2px dashed var(--text-muted)';
+    sw.style.display = 'flex';
+    sw.style.alignItems = 'center';
+    sw.style.justifyContent = 'center';
+    sw.style.color = 'var(--text-muted)';
+    sw.style.fontSize = '0.78rem';
+    sw.textContent = '×';
+  }
+  sw.addEventListener('click', () => {
+    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+    sw.classList.add('active');
+    activePalIdx = i;
+  });
+  palRow.appendChild(sw);
+});
+
+// ---- Controls ----
+document.getElementById('radiusRange').addEventListener('input', e => { setRadius(+e.target.value); });
+document.getElementById('radDown').addEventListener('click', () => { setRadius(RADIUS - 1); });
+document.getElementById('radUp').addEventListener('click', () => { setRadius(RADIUS + 1); });
+document.getElementById('symSel').addEventListener('change', e => { symmetry = +e.target.value; });
+document.getElementById('patSel').addEventListener('change', e => { pattern = e.target.value; });
+document.getElementById('zoomRange').addEventListener('input', e => {
+  zoom = +e.target.value;
+  document.getElementById('zoomVal').textContent = zoom + 'x';
+  setZoom(zoom);
+});
+
+// ---- Pattern Generator ----
+function generatePattern() {
+  cells.fill(0);
+  const R = RADIUS;
+
+  const col = (name) => {
+    const i = PALETTE.findIndex(p => p.name === name);
+    return i >= 0 ? i + 1 : 1;
+  };
+
+  // Palette shortcuts
+  const P = {
+    quartz:    col('Quartz'),
+    stone:     col('Stone'),
+    deepslate: col('Deepslate'),
+    cobble:    col('Cobble'),
+    lapis:     col('Lapis'),
+    diamond:   col('Diamond Block'),
+    gold:      col('Gold Block'),
+    emerald:   col('Emerald'),
+    purple:    col('Amethyst'),
+    cyan:      col('Cyan Con.'),
+    white:     col('White Concrete'),
+    calcite:   col('Calcite'),
+    prism:     col('Prismarine'),
+    granite:   col('Granite'),
+    diorite:   col('Diorite'),
+    black:     col('Black Con.'),
+    nether:    col('Nether Brick'),
+    andesite:  col('Andesite'),
+    terr:      col('Terracotta'),
+    red:       col('Red Con.'),
+    blue:      col('Blue Con.'),
+    pink:      col('Pink Con.'),
+    yellow:    col('Yellow Con.'),
+    lime:      col('Lime Con.'),
+    orange:    col('Orange Con.'),
+  };
+
+  function setCell(cx, cy, c) {
+    const x = cx + R, y = cy + R;
+    if (x < 0 || x >= GRID || y < 0 || y >= GRID) return;
+    if (cx * cx + cy * cy <= (R + 1) * (R + 1)) {
+      cells[y * GRID + x] = c;
+    }
+  }
+
+  // Fill every in-circle pixel with a pattern function
+  for (let dy = -R; dy <= R; dy++) {
+    for (let dx = -R; dx <= R; dx++) {
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > R + 0.5) continue;
+
+      const angle = Math.atan2(dy, dx); // -pi to pi
+      const norm = dist / R; // 0..1
+      const angleDeg = ((angle * 180 / Math.PI) + 360) % 360;
+
+      let c = 0;
+
+      if (pattern === 'rings') {
+        const ring = Math.floor(norm * 10);
+        const ringColors = [P.quartz, P.deepslate, P.gold, P.lapis, P.prism, P.purple, P.emerald, P.cyan, P.granite, P.white];
+        c = ringColors[ring % ringColors.length];
+        // Thin black separator rings
+        const frac = (norm * 10) % 1;
+        if (frac < 0.08 || frac > 0.92) c = P.black;
+
+      } else if (pattern === 'petals') {
+        // Alternating petal "arms" based on angle sectors
+        const sectors = 8;
+        const secAngle = (angleDeg % (360 / sectors)) / (360 / sectors); // 0..1 within sector
+        const sectorIdx = Math.floor(angleDeg / (360 / sectors));
+        const petal = Math.abs(secAngle - 0.5) * 2; // 0 at edge, 1 at center line
+
+        // Outer ring: quartz
+        if (norm > 0.92) { c = P.quartz; }
+        // Second ring: deepslate
+        else if (norm > 0.84) { c = P.deepslate; }
+        // Petal zone
+        else if (norm > 0.12) {
+          const petalShape = petal > (0.3 + norm * 0.3);
+          if (petalShape) {
+            // Petal interior - radial gradient of colors
+            if (norm > 0.65) c = P.cyan;
+            else if (norm > 0.45) c = P.lapis;
+            else if (norm > 0.28) c = P.purple;
+            else c = P.gold;
+          } else {
+            // Between petals - stone/quartz
+            if (norm > 0.6) c = P.diorite;
+            else if (norm > 0.4) c = P.andesite;
+            else c = P.deepslate;
+          }
+          // thin ring borders
+          if (Math.abs(norm - 0.65) < 0.02 || Math.abs(norm - 0.45) < 0.02 || Math.abs(norm - 0.28) < 0.02) c = P.quartz;
+        }
+        // Core
+        else {
+          if (norm > 0.07) c = P.gold;
+          else c = P.diamond;
+        }
+
+      } else if (pattern === 'diamond') {
+        // Manhattan distance mandalas
+        const manDist = (Math.abs(dx) + Math.abs(dy)) / (R * 1.4142);
+        const diagAngle = (Math.floor(angleDeg / 45)) % 2;
+
+        if (norm > 0.93) { c = P.white; }
+        else if (norm > 0.86) { c = P.deepslate; }
+        else {
+          const zone = Math.floor(manDist * 8);
+          const zoneColors = [P.diamond, P.quartz, P.lapis, P.diorite, P.cyan, P.gold, P.prism, P.purple];
+          c = zoneColors[zone % zoneColors.length];
+          if (diagAngle && norm < 0.85) {
+            // Checkerboard overlay near borders
+            const localZone = Math.floor(manDist * 8);
+            const zc2 = [P.deepslate, P.black, P.nether, P.cobble, P.deepslate, P.black, P.nether, P.stone];
+            if (((dx & 3) === 0 || (dy & 3) === 0)) c = zc2[localZone % zc2.length];
+          }
+        }
+        if (norm < 0.08) c = P.gold;
+        else if (norm < 0.15) c = P.diamond;
+
+      } else if (pattern === 'star') {
+        // Star polygon - sine wave in radius
+        const arms = 8;
+        const sinWave = Math.sin(angle * arms);
+        const starR = 0.75 + sinWave * 0.18;
+
+        if (norm > 0.93) c = P.quartz;
+        else if (norm > starR && norm < 0.93) {
+          // Background between star arms
+          c = P.deepslate;
+          if (norm > 0.85) c = P.andesite;
+        } else {
+          // Star body with concentric fills
+          const relR = norm / starR;
+          if (relR > 0.85) c = P.gold;
+          else if (relR > 0.65) c = P.yellow;
+          else if (relR > 0.45) c = P.orange;
+          else if (relR > 0.25) c = P.red;
+          else c = P.nether;
+        }
+        // Inner rings
+        if (norm < 0.08) c = P.diamond;
+        else if (norm < 0.15) c = P.cyan;
+
+        // Radial lines
+        const armAngle = ((angleDeg % (360 / arms)) / (360 / arms));
+        if (Math.abs(armAngle - 0.5) < 0.02 && norm < 0.93 && norm > 0.15) c = P.quartz;
+
+      } else if (pattern === 'spiral') {
+        // Archimedes spiral arms
+        const arms = 6;
+        const spiralPhase = ((angle / (Math.PI * 2) + norm * 2.5) * arms) % 1;
+        const onArm = spiralPhase < 0.35;
+
+        if (norm > 0.93) c = P.quartz;
+        else if (onArm) {
+          if (norm > 0.7) c = P.cyan;
+          else if (norm > 0.45) c = P.lapis;
+          else if (norm > 0.25) c = P.purple;
+          else c = P.diamond;
+        } else {
+          if (norm > 0.7) c = P.andesite;
+          else if (norm > 0.45) c = P.deepslate;
+          else if (norm > 0.25) c = P.black;
+          else c = P.nether;
+        }
+        // Center
+        if (norm < 0.07) c = P.gold;
+        // Border rings
+        if (Math.abs(norm - 0.7) < 0.015 || Math.abs(norm - 0.45) < 0.015 || Math.abs(norm - 0.25) < 0.015) c = P.quartz;
+      } else {
+        // blank - just fill circle outline
+        if (norm > 0.96) c = P.deepslate;
+        else c = 0;
+      }
+
+      setCell(dx, dy, c);
+    }
+  }
+  redraw();
+}
+
+// ---- Buttons ----
+document.getElementById('genBtn').addEventListener('click', generatePattern);
+document.getElementById('clearBtn').addEventListener('click', () => { cells.fill(0); redraw(); });
+document.getElementById('dlBtn').addEventListener('click', () => {
+  // Export at 1px=1block resolution
+  const ex = document.createElement('canvas');
+  ex.width = GRID; ex.height = GRID;
+  const ec = ex.getContext('2d');
+  for (let y = 0; y < GRID; y++) {
+    for (let x = 0; x < GRID; x++) {
+      const ci = cells[y * GRID + x];
+      if (ci > 0) {
+        const p = PALETTE[ci - 1];
+        if (p && p.color) { ec.fillStyle = p.color; ec.fillRect(x, y, 1, 1); }
+      }
+    }
+  }
+  const a = document.createElement('a');
+  a.download = 'mandala-r82.png';
+  a.href = ex.toDataURL();
+  a.click();
+});
+
+// ---- Area ----
+function recalcArea() {
+  let cnt = 0;
+  for (let dy = -RADIUS; dy <= RADIUS; dy++)
+    for (let dx = -RADIUS; dx <= RADIUS; dx++)
+      if (dx * dx + dy * dy <= RADIUS * RADIUS) cnt++;
+  document.getElementById('areaBlocks').textContent = cnt.toLocaleString();
+}
+recalcArea();
+
+// ---- Init ----
+setZoom(3);
+generatePattern();
+recalcArea();
+</script>
+</body>
+</html>

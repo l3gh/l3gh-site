@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>l3gh - XP Calculator</title>
+    <link rel="icon" href="https://l3gh.com/assets/images/home-favicon.jpg">
+    <meta property="og:image" content="https://l3gh.com/assets/images/home-favicon.jpg"/>
+    <link rel="stylesheet" href="./styles/main.css">
+    <meta name="description" content="Minecraft XP calculator by @l3gh <3">
+    <meta name="theme-color" content="#ffffff">
+    <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+</head>
+<body>
+    <div class="container animate">
+        <h1 class="page-header">XP calculator</h1>
+        <div class="section-title">conversion</div>
+        <div class="card" style="margin-bottom: 32px;">
+            <div class="input-hero">
+                <input type="number" id="lvl-in" placeholder="0" oninput="updateConversions()">
+            </div>
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Total Raw XP</div>
+                    <div class="stat-val" id="res-total">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">XP To Next</div>
+                    <div class="stat-val" id="res-next">7</div>
+                </div>
+            </div>
+        </div>
+        <div class="grid-split">
+            <div class="split-item">
+                <div class="section-title">Level Goal</div>
+                <div class="card">
+                    <div class="data-row">
+                        <div class="cell-label">Current</div>
+                        <div class="cell-value">
+                            <input type="number" id="cur-lvl" placeholder="0" oninput="updateDiff()">
+                        </div>
+                    </div>
+                    <div class="data-row">
+                        <div class="cell-label">Target</div>
+                        <div class="cell-value">
+                            <input type="number" id="tar-lvl" placeholder="30" oninput="updateDiff()">
+                        </div>
+                    </div>
+                    <div class="data-row" style="background: var(--bg-hover)">
+                        <div class="cell-label">Needed</div>
+                        <div class="cell-value" id="res-diff" style="color: var(--accent);">0</div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="split-item">
+                <div class="section-title">Raw Search</div>
+                <div class="card">
+                    <div class="data-row">
+                        <div class="cell-label">Raw XP</div>
+                        <div class="cell-value">
+                            <input type="number" id="raw-in" placeholder="Points..." oninput="updateConversions()">
+                        </div>
+                    </div>
+                    <div class="data-row">
+                        <div class="cell-label">Level</div>
+                        <div class="cell-value" id="res-lvl-out" style="color: var(--accent);">0</div>
+                    </div>
+                    <div class="data-row">
+                        <div class="cell-label" style="opacity: 0;">-</div>
+                        <div class="cell-value" style="color: var(--text-muted); font-size: 0.7rem;">(Level Estimate)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+const getXpAtLevel = (lvl) => {
+    lvl = Math.max(0, lvl);
+    if (lvl <= 16) return Math.pow(lvl, 2) + 6 * lvl;
+    if (lvl <= 31) return 2.5 * Math.pow(lvl, 2) - 40.5 * lvl + 360;
+    return 4.5 * Math.pow(lvl, 2) - 162.5 * lvl + 2220;
+};
+
+const getXpForNextLevel = (lvl) => {
+    lvl = Math.max(0, lvl);
+    if (lvl <= 15) return 2 * lvl + 7;
+    if (lvl <= 30) return 5 * lvl - 38;
+    return 9 * lvl - 158;
+};
+
+function updateConversions() {
+    const lvl = parseInt(document.getElementById('lvl-in')?.value) || 0;
+    const raw = parseInt(document.getElementById('raw-in')?.value) || 0;
+    
+    // Level to XP
+    const totalXp = getXpAtLevel(lvl);
+    const toNext = getXpForNextLevel(lvl);
+    if(document.getElementById('res-total')) document.getElementById('res-total').innerText = totalXp.toLocaleString();
+    if(document.getElementById('res-next')) document.getElementById('res-next').innerText = toNext.toLocaleString();
+
+    // XP to Level (Inverse calculation via loop/approximation for accuracy)
+    let calcLvl = 0;
+    while(getXpAtLevel(calcLvl + 1) <= raw) { calcLvl++; }
+    if(document.getElementById('res-lvl-out')) document.getElementById('res-lvl-out').innerText = calcLvl;
+}
+
+function updateDiff() {
+    const cur = parseInt(document.getElementById('cur-lvl')?.value) || 0;
+    const tar = parseInt(document.getElementById('tar-lvl')?.value) || 0;
+    const diff = Math.max(0, getXpAtLevel(tar) - getXpAtLevel(cur));
+    if(document.getElementById('res-diff')) document.getElementById('res-diff').innerText = diff.toLocaleString();
+}
+
+    </script>
+</body>
+</html>

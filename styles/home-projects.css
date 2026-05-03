@@ -10,9 +10,74 @@ html {
     padding: 0;
     margin: 0;
 }
+
 .page {
-    display: flex;  
+    display: flex;
     justify-content: center;
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    margin-top: 60px;
+    box-sizing: border-box;
+}
+
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+
+.project-card {
+    background: #111;
+    border: 1px solid #1f1f1f;
+    border-radius: 8px;
+    padding: 24px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.project-card:hover {
+    background: #1a1a1a;
+    border-color: #333;
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+
+.project-card h3 {
+    color: #e5e5e5;
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.project-card p {
+    color: #666;
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.6;
+}
+
+
+
+.project-card.placeholder {
+    border: 1px dashed #333;
+    background: transparent;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: default;
+}
+
+.project-card.placeholder:hover {
+    transform: none;
+    background: transparent;
+    border-color: #444;
 }
 
 body {

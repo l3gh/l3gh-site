@@ -1,0 +1,165 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #050505;
+      --bg-elevated:  #0a0a0a;
+      --bg-card:      #111111;
+      --bg-hover:     #1a1a1a;
+      --border:       #1f1f1f;
+      --border-hover: #333;
+      --text:         #e5e5e5;
+      --text-muted:   #666;
+      --text-dim:     #444;
+    }
+
+    body {
+      background: var(--bg-elevated);
+      font-family: 'Geist', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text);
+    }
+
+    main {
+      width: 100%;
+      max-width: 680px;
+      padding: 10vh 24px 15vh;
+      animation: fadeUp 0.25s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── page header ── */
+    .page-header {
+      font-size: 2.67rem;
+      font-weight: 400;
+      color: #ccc;
+      letter-spacing: -0.02em;
+      margin-bottom: 32px;
+      line-height: 1;
+    }
+
+    /* ── hero banner (links to /server) ── */
+    .hero-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--text);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      text-decoration: none;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .hero-banner:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+      border-left-color: var(--text);
+    }
+    .hero-banner-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .hero-banner-tag {
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+    }
+    .hero-banner-title {
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+    .hero-banner-sub {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .hero-banner-arrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: #444;
+      flex-shrink: 0;
+      transition: color 0.15s ease;
+    }
+    .hero-banner:hover .hero-banner-arrow {
+      color: #888;
+    }
+
+    /* ── section title ── */
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      padding-left: 2px;
+    }
+
+    /* ── tools grid ── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    /* ── tool card ── */
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .tool-card:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+    }
+
+    .tool-card-head {
+      padding: 18px 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tool-card-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #aaa;
+      transition: color 0.15s ease;
+    }
+    .tool-card:hover .tool-card-name {
+      color: var(--text);
+    }
+
+    .tool-card-body {
+      padding: 12px 16px 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .tool-card-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ── responsive ── */
+    @media (max-width: 600px) {
+      main { padding: 8vh 16px 12vh; }
+      .page-header { font-size: 2rem; }
+      .tools-grid { grid-template-columns: 1fr; }
+    }

@@ -1,0 +1,206 @@
+@import url('https://geistfont.vercel.app/geist.css');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:           #050505;
+    --bg-elevated:  #0a0a0a;
+    --bg-card:      #111111;
+    --bg-hover:     #1a1a1a;
+    --border:       #1f1f1f;
+    --border-hover: #2a2a2a;
+    --text:         #e5e5e5;
+    --text-muted:   #666;
+    --text-dim:     #444;
+    --accent:       #fff;
+    --accent-dim:   #888;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-elevated);
+    color: var(--text);
+    font-family: 'Geist', system-ui, sans-serif;
+    font-size: 0.82rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 48px;
+    overflow-x: hidden;
+  }
+
+  h1 {
+    font-family: 'Geist', system-ui, sans-serif;
+    font-size: 2.67rem;
+    font-weight: 400;
+    color: #ccc;
+    letter-spacing: normal;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .ctrl-group {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  select, input[type=range] {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  select:focus, input[type=range]:focus { border-color: var(--border-hover); }
+
+  input[type=range] {
+    padding: 0;
+    width: 120px;
+    accent-color: var(--text-muted);
+  }
+
+  .val-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text);
+    min-width: 28px;
+    text-align: center;
+  }
+
+  .btn {
+    font-family: 'Geist', system-ui, sans-serif;
+    font-size: 0.78rem;
+    font-weight: 400;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 6px;
+    letter-spacing: normal;
+    width: fit-content;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  }
+  .btn:hover {
+    color: #aaa;
+    border-color: var(--border-hover);
+    background: var(--bg-hover);
+    box-shadow: none;
+  }
+  .btn.danger { border-color: var(--border); color: var(--text-muted); }
+  .btn.danger:hover { color: #aaa; border-color: var(--border-hover); background: var(--bg-hover); box-shadow: none; }
+
+  .canvas-wrap {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-elevated);
+    cursor: crosshair;
+    image-rendering: pixelated;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  .info-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .info-bar span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text);
+  }
+
+  .palette-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 18px;
+    max-width: 900px;
+  }
+
+  .swatch {
+    width: 28px; height: 28px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    image-rendering: pixelated;
+    border-radius: 4px;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+    flex-shrink: 0;
+  }
+  .swatch:hover { transform: scale(1.15); }
+  .swatch.active {
+    border-color: var(--accent);
+    transform: scale(1.15);
+  }
+
+  .legend {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    text-align: center;
+    max-width: 700px;
+    line-height: 1.6;
+  }
+  .legend span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text);
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    body { padding: 16px; }
+    h1 { font-size: 1.7rem; }
+    .controls { gap: 8px; }
+    .ctrl-group { padding: 8px 10px; gap: 8px; }
+    input[type=range] { width: 80px; }
+  }

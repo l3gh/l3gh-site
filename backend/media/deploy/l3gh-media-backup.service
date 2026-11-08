@@ -1,0 +1,13 @@
+[Unit]
+Description=Local private gallery backup
+[Service]
+Type=oneshot
+User=l3gh-media
+Group=l3gh-media
+EnvironmentFile=/etc/l3gh-media.env
+ExecStart=/opt/l3gh-media/.venv/bin/python /opt/l3gh-media/backup.py
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/l3gh-media /var/backups/l3gh-media

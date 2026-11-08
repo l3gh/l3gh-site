@@ -1,0 +1,14 @@
+# Active media site fragment; shared listener timeout policy is documented in README.
+media.l3gh.com {
+    request_body {
+        max_size 22020096
+    }
+    reverse_proxy 127.0.0.1:7100 {
+        transport http {
+            dial_timeout 5s
+            response_header_timeout 650s
+            read_timeout 60s
+            write_timeout 600s
+        }
+    }
+}

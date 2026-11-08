@@ -1,0 +1,20 @@
+[Unit]
+Description=l3gh private gallery backend
+After=network.target
+[Service]
+User=l3gh-media
+Group=l3gh-media
+WorkingDirectory=/opt/l3gh-media
+EnvironmentFile=/etc/l3gh-media.env
+ExecStart=/opt/l3gh-media/.venv/bin/gunicorn --bind 127.0.0.1:7100 --workers 1 --threads 1 --timeout 650 --limit-request-line 4096 --error-logfile - wsgi:app
+Restart=on-failure
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/l3gh-media
+MemoryMax=1200M
+TasksMax=32
+[Install]
+WantedBy=multi-user.target

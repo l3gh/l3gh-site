@@ -33,12 +33,12 @@ Proposed code `/opt/l3gh-media`; service user `l3gh-media`; private data `/var/l
 
 ## Activation verification (2026-11-08)
 
-- VPS source commit `b383471`; source archive private at `/root/l3gh-media-source.tar.gz`. Backend source has not yet been copied into this Windows repository.
+- Initial activation source commit `b383471`; source archive private at `/root/l3gh-media-source.tar.gz`. Current deployed source `75b00a3e4012e49e56e1b21303e89eca96174d34` is now tracked under `backend/media/`, with provenance in `SOURCE.md` and all 21 backend tests passing on Linux during import. `.vercelignore` excludes it from static deployment.
 - Dedicated service and daily local backup timer enabled. Agent reports six passing tests, including media lifecycle and restore, and a successful 20 MiB upload over 41 seconds; test content removed.
 - Parent independently verified `/health` returns 200, `/api/gallery` returns `{"items":[]}` and allows the `https://l3gh.com` origin, and unauthenticated `/admin` returns 401 over valid HTTPS using explicit DNS resolution.
 - Caddy media route enabled; existing watch route retained. Shared request body/write deadlines increased to 10/11 minutes because installed Caddy supports these at listener level; existing watch upstream deadlines retained.
 - Application quota 1 GiB; seven local backup archives budgeted. No off-host backup protection.
-- OAuth secrets installed only on VPS. Real GitHub authorization, actual browser upload/publish/unpublish/logout, frontend integration with a published item, source transfer, and public-site deployment still pending.
+- OAuth secrets installed only on VPS. User reached authenticated admin and reported the draft-upload failure subsequently fixed below; their post-fix retry remains pending. Frontend integration with a published item, off-host backups and replacement of the existing public gallery are still pending. Source transfer is complete; the site changes have been pushed while the original gallery remains live.
 
 ## Admin route fix (2026-11-08)
 

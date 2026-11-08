@@ -1,149 +1,70 @@
-html {
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 1.5;
-    font-family: Arial, sans-serif;
-    line-height: 1.5;
-    background-color: rgb(34, 34, 34);
-    color: #111;
-    padding: 0;
-    margin: 0;
-}
-
-.page {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    max-width: 800px;
-    padding: 20px;
-    margin-top: 60px;
+﻿* {
     box-sizing: border-box;
 }
 
-
-.projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    width: 100%;
-}
-
-
-.project-card {
-    background: #111;
-    border: 1px solid #1f1f1f;
-    border-radius: 8px;
-    padding: 24px;
-    text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
-}
-
-.project-card:hover {
-    background: #1a1a1a;
-    border-color: #333;
-    transform: translateY(-2px); /* Slight lift on hover */
-}
-
-
-.project-card h3 {
-    color: #e5e5e5;
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 500;
-}
-
-.project-card p {
-    color: #666;
-    margin: 0;
-    font-size: 0.82rem;
-    line-height: 1.6;
-}
-
-
-
-.project-card.placeholder {
-    border: 1px dashed #333;
-    background: transparent;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    cursor: default;
-}
-
-.project-card.placeholder:hover {
-    transform: none;
-    background: transparent;
-    border-color: #444;
+html {
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    background: #222;
+    color: #eee;
 }
 
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.5;
-    background-color: rgb(34, 34, 34);
-    color: #111;
-    padding: 0;
     margin: 0;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.soon { /*ill need to change this once i make /projects */
-    color: white;
-    font-size:xx-large;
-    font-weight: bolder;
-}
-
-a {
-    text-decoration: none;
-}
-
-.header-nav-buttons {
-    color: rgb(102, 102, 102);
-    margin-left: 10px;
-    margin-right: 10px;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 21px;
-    text-transform: uppercase;
-    transition: .1s ease-in-out;
 }
 
 header {
-    background-color: rgb(34, 34, 34);
-    padding: 10px;
-    display: flex;
-    position: fixed;
-    row-gap: 15px;
-    justify-content: center;
-    align-items: center;
-    height: 60px;
-    z-index: 101;
-    top: 0;
-    left: 0;
-    right: 0;
+    padding: 24px 12px;
 }
 
 .header-nav {
-    color: rgb(102, 102, 102);
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
-.header-nav-buttons:hover {
-    color: rgb(77, 77, 77);
-}
-
-.header-nav-button-current {
-    color: white;
-    margin-left: 10px;
-    margin-right: 10px;
+.header-nav a {
     font-size: 14px;
-    font-weight: 400;
-    line-height: 21px;
     text-transform: uppercase;
-    transition: .1s ease-in-out;
+    text-decoration: none;
+    color: #aaa;
+}
+
+.header-nav a:hover,
+.header-nav .header-nav-button-current {
+    color: #fff;
+}
+
+a:focus-visible {
+    outline: 2px solid #eee;
+    outline-offset: 6px;
+}
+
+.page {
+    min-height: calc(100svh - 69px);
+    display: grid;
+    place-items: center;
+    padding: 48px 24px;
+}
+
+.coming-soon {
+    max-width: 560px;
+    text-align: center;
+}
+
+.eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 12px;
+}
+
+h1 {
+    margin: 12px 0;
+    font-size: clamp(2.5rem, 9vw, 4rem);
+    line-height: 1.1;
+}
+
+.coming-soon p {
+    color: #bbb;
 }

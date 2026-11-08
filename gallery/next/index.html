@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Gallery preview — l3gh</title>
+  <link rel="stylesheet" href="./gallery.css">
+  <script type="module" src="./gallery.js"></script>
+</head>
+<body>
+  <header><a href="/home/">l3gh</a><nav aria-label="Main navigation"><a href="/home/">Home</a><a href="/gallery/next/" aria-current="page">Gallery</a><a href="/projects/">Projects</a><a href="/tools/">Tools</a></nav></header>
+  <main>
+    <h1>Gallery</h1>
+    <p class="intro">Pictures and pieces of my world.</p>
+    <p id="status" role="status">Loading pictures…</p>
+    <button id="retry" hidden type="button">Try again</button>
+    <div id="gallery" class="gallery"></div>
+  </main>
+  <dialog id="viewer" aria-labelledby="viewer-title">
+    <div class="viewer-controls"><button id="previous" type="button" aria-label="Previous image">Previous</button><button id="next" type="button" aria-label="Next image">Next</button><button id="close" type="button">Close</button></div>
+    <img id="viewer-image" alt="">
+    <h2 id="viewer-title"></h2><p id="viewer-caption"></p>
+  </dialog>
+</body>
+</html>

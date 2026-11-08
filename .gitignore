@@ -1,0 +1,15 @@
+node_modules/
+.vercel/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
